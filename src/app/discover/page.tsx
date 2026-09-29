@@ -5,7 +5,7 @@ import { Suspense, useEffect, useState } from "react";
 import { COUNTRIES, PURPOSES } from "@/data/config";
 import { getTopic } from "@/data/topics";
 import { AppShell, DailyCounter, TopBar } from "@/components/shell";
-import { Avatar, InterestChips, LanguageLine, PurposeBadge } from "@/components/profile";
+import { Avatar, InterestChips, LanguageLine, NameLine } from "@/components/profile";
 import { DailyLimitModal } from "@/components/safety";
 import { Button, ButtonLink, EmptyState, Loading } from "@/components/ui";
 import type { Recommendation } from "@/services/matching";
@@ -129,7 +129,7 @@ function Discover() {
                 <Avatar user={rec.user} size={64} />
                 <div>
                   <h2 className="text-xl font-bold">
-                    {partnerCountry.flag} {rec.user.nickname} · {rec.user.age}
+                    <NameLine user={rec.user} />
                   </h2>
                   <p className="text-sm text-muted">
                     {rec.user.city} · {rec.user.mbti === "UNKNOWN" ? "MBTI 비공개" : rec.user.mbti}
@@ -137,12 +137,9 @@ function Discover() {
                 </div>
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                <PurposeBadge purpose={rec.user.purpose} />
-                {!rec.purposeMatch && (
-                  <span className="text-xs text-muted">나와 만남 목적이 달라요 ({PURPOSES[me.purpose].label})</span>
-                )}
-              </div>
+              {!rec.purposeMatch && (
+                <p className="mt-3 text-xs text-muted">나와 만남 목적이 달라요 (나: {PURPOSES[me.purpose].icon} {PURPOSES[me.purpose].label})</p>
+              )}
 
               <p className="mt-4 leading-relaxed text-ink">“{rec.user.bio}”</p>
 

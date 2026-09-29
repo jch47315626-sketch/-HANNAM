@@ -42,7 +42,6 @@ function Me() {
           <p className="text-sm text-muted">
             {me.city || COUNTRIES[me.country].name} · {me.mbti === "UNKNOWN" ? "MBTI 모름" : me.mbti}
           </p>
-          <PurposeBadge purpose={me.purpose} className="mt-2" />
           {me.bio && <p className="mt-3 text-sm text-ink-soft">{me.bio}</p>}
           <p className="mt-3 text-xs text-muted">🔒 내 사진은 3일 동안 매일 대화한 상대에게만 공개돼요.</p>
         </Card>

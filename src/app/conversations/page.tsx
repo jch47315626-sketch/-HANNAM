@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { COUNTRIES } from "@/data/config";
 import { AppShell, DailyCounter, TopBar } from "@/components/shell";
-import { Avatar, PurposeBadge } from "@/components/profile";
+import { Avatar, NameLine } from "@/components/profile";
 import { BlockDialog } from "@/components/safety";
 import { ButtonLink, EmptyState } from "@/components/ui";
 import { useStore } from "@/lib/store";
@@ -93,10 +92,10 @@ function Conversations() {
                   <Avatar user={p} revealed={canSeePhoto(p.id)} size={48} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <p className="font-bold">
-                        {p.nickname} <span aria-label={COUNTRIES[p.country].name}>{COUNTRIES[p.country].flag}</span>
+                      <p className="min-w-0 font-bold">
+                        <NameLine user={p} age={false} />
                       </p>
-                      {revealed && <span className="text-xs text-brand">💛 Connect</span>}
+                      {revealed && <span className="shrink-0 text-xs text-brand">🤝 Connect</span>}
                       {c.status === "BLOCKED" && <span className="rounded-full bg-danger-soft px-2 text-[10px] text-danger">차단됨</span>}
                       {c.status === "ENDED" && <span className="rounded-full bg-cream px-2 text-[10px] text-muted">종료</span>}
                     </div>
@@ -124,7 +123,6 @@ function Conversations() {
                     )}
                   </div>
                 )}
-                {tab === "active" && <PurposeRow user={p} />}
               </li>
             );
           })}
@@ -140,10 +138,3 @@ function Conversations() {
   );
 }
 
-function PurposeRow({ user }: { user: UserProfile }) {
-  return (
-    <div className="-mt-2 px-4 pb-3 pl-[76px]">
-      <PurposeBadge purpose={user.purpose} className="!py-0.5 text-[11px]" />
-    </div>
-  );
-}

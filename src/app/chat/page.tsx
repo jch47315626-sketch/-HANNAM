@@ -8,7 +8,7 @@ import { QUICK_PHRASES } from "@/data/scripts";
 import { getTopic } from "@/data/topics";
 import { AppShell } from "@/components/shell";
 import { Banner, MessageBubble, TypingBubble } from "@/components/chat";
-import { Avatar, PurposeBadge } from "@/components/profile";
+import { Avatar, NameLine } from "@/components/profile";
 import { BlockDialog } from "@/components/safety";
 import { Button, ButtonLink, EmptyState, Modal, Switch } from "@/components/ui";
 import { useStore } from "@/lib/store";
@@ -83,12 +83,11 @@ function Chat() {
           <Link href={`/profile?id=${partner.id}`} className="flex min-w-0 flex-1 items-center gap-2.5">
             <Avatar user={partner} revealed={photo.unlocked && conv.status !== "BLOCKED"} size={40} />
             <div className="min-w-0">
-              <p className="truncate font-bold leading-tight">
-                {partner.nickname} · {partner.age}
+              <p className="font-bold leading-tight">
+                <NameLine user={partner} flag={false} />
               </p>
-              <p className="flex items-center gap-1.5 truncate text-xs text-muted">
+              <p className="truncate text-xs text-muted">
                 {country.flag} {partner.city}
-                <PurposeBadge purpose={partner.purpose} className="!px-1.5 !py-0 text-[10px]" />
               </p>
             </div>
           </Link>

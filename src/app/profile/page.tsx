@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { CHAT_STYLES, COUNTRIES, LANGUAGES, PHOTO_REVEAL_DAYS, REASONS } from "@/data/config";
 import { AppShell, TopBar } from "@/components/shell";
-import { InterestChips, LockedPhoto, PurposeBadge, VerificationBadges } from "@/components/profile";
+import { InterestChips, LockedPhoto, NameLine, VerificationBadges } from "@/components/profile";
 import { BlockDialog } from "@/components/safety";
 import { Button, ButtonLink, Card, EmptyState, SectionLabel } from "@/components/ui";
 import { useStore } from "@/lib/store";
@@ -61,13 +61,12 @@ function PublicProfile() {
         )}
 
         <div className="text-center">
-          <h1 className="text-2xl font-bold">
-            {user.nickname} · {user.age}
+          <h1 className="flex justify-center text-2xl font-bold">
+            <NameLine user={user} flag={false} className="justify-center" />
           </h1>
           <p className="text-sm text-muted">
             {country.flag} {user.city} · {user.mbti === "UNKNOWN" ? "MBTI 비공개" : user.mbti}
           </p>
-          <PurposeBadge purpose={user.purpose} className="mt-2" />
         </div>
 
         {revealed && (

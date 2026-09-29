@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { AppShell, TopBar } from "@/components/shell";
-import { Avatar, NameLine, PurposeBadge } from "@/components/profile";
+import { Avatar, NameLine } from "@/components/profile";
 import { ButtonLink, EmptyState } from "@/components/ui";
 import { useStore } from "@/lib/store";
 
@@ -53,7 +53,6 @@ function ConnectList() {
                       <p className="mt-2 font-bold">
                         <NameLine user={p} />
                       </p>
-                      <PurposeBadge purpose={p.purpose} className="mt-1.5" />
                       {!canSeePhoto(p.id) && <p className="mt-1.5 text-[11px] text-muted">📷 사진은 3일 매일 대화 후 공개</p>}
                     </Link>
                   </li>
@@ -76,7 +75,9 @@ function ConnectList() {
                     <Link href={`/chat?id=${c.id}`} className="flex items-center gap-3 rounded-2xl bg-paper p-3">
                       <Avatar user={p} size={44} />
                       <div className="flex-1">
-                        <p className="font-semibold">{p.nickname}</p>
+                        <p className="font-semibold">
+                          <NameLine user={p} age={false} />
+                        </p>
                         <p className="text-xs text-muted">상대가 Connect하면 상세 프로필이 공개돼요</p>
                       </div>
                       <span className="text-xs text-muted">⏳</span>

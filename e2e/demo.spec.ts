@@ -104,7 +104,7 @@ test("Happy path: 주제 → 추천 → 채팅 → 번역 → Connect → 사진
 
   // 대화 목록
   await page.goto("/conversations");
-  await expect(page.getByText("💛 Connect").first()).toBeVisible();
+  await expect(page.getByText("🤝 Connect").first()).toBeVisible();
   await expect(page.getByText("1 / 10")).toBeVisible();
 });
 
