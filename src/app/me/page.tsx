@@ -44,7 +44,7 @@ function Me() {
           </p>
           <PurposeBadge purpose={me.purpose} className="mt-2" />
           {me.bio && <p className="mt-3 text-sm text-ink-soft">{me.bio}</p>}
-          <p className="mt-3 text-xs text-muted">🔒 다른 사람에게 내 사진은 Connect 전까지 잠겨 있어요.</p>
+          <p className="mt-3 text-xs text-muted">🔒 내 사진은 3일 동안 매일 대화한 상대에게만 공개돼요.</p>
         </Card>
 
         <div className="grid grid-cols-3 gap-2 text-center">

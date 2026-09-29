@@ -79,7 +79,7 @@ export function LockedPhoto({ user, revealed }: { user: UserProfile; revealed?: 
               🔒
             </div>
             <p className="mt-2 text-sm font-semibold text-ink-soft">사진 비공개</p>
-            <p className="mt-1 text-xs text-muted">서로 Connect하면 공개돼요</p>
+            <p className="mt-1 text-xs text-muted">첫 채팅 후 3일 동안 매일 대화하면 공개돼요</p>
           </div>
         </>
       )}

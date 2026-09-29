@@ -44,12 +44,15 @@ test("Happy path: 주제 → 질문 → 추천 → 채팅 → 번역 → 이어�
 
   // 채팅: 오늘의 질문 보내기
   await page.getByRole("button", { name: "질문 보내기" }).click();
-  await expect(page.getByText("ソウルの景福宮に行ってみたいです！韓服も着てみたいです。")).toBeVisible();
-  // 번역 ON: 원문 + 번역
+  // 번역 ON: 번역만 보이고 일본어 원문은 숨김
   await expect(page.getByText("서울의 경복궁에 가보고 싶어요! 한복도 입어보고 싶어요.")).toBeVisible();
+  await expect(page.getByText("ソウルの景福宮に行ってみたいです！韓服も着てみたいです。")).toBeHidden();
+  await page.getByRole("button", { name: /원문 보기/ }).first().click();
+  await expect(page.getByText("ソウルの景福宮に行ってみたいです！韓服も着てみたいです。")).toBeVisible();
 
   // 번역 OFF: 원문만 + 번역 보기
   await page.getByRole("switch", { name: "번역" }).click();
+  await expect(page.getByText("ソウルの景福宮に行ってみたいです！韓服も着てみたいです。")).toBeVisible();
   await expect(page.getByText("서울의 경복궁에 가보고 싶어요! 한복도 입어보고 싶어요.")).toBeHidden();
   await page.getByRole("button", { name: "🌐 번역 보기" }).first().click();
   await expect(page.getByText("서울의 경복궁에 가보고 싶어요! 한복도 입어보고 싶어요.")).toBeVisible();
@@ -72,14 +75,36 @@ test("Happy path: 주제 → 질문 → 추천 → 채팅 → 번역 → 이어�
   await expect(page.getByRole("heading", { name: "Connect!" })).toBeVisible({ timeout: 8000 });
   await page.getByRole("button", { name: "Yuki의 프로필 보기" }).click();
 
-  // 사진 공개
-  await expect(page.getByRole("img", { name: "Yuki의 사진 (가상 일러스트)" })).toBeVisible();
+  // Connect만으로는 사진이 공개되지 않음 (상세 프로필만 공개)
+  await expect(page.getByRole("img", { name: "사진 비공개" })).toBeVisible();
   await expect(page.getByText("✓ 사진 인증")).toBeVisible();
+
+  // 3일 동안 매일 대화 + 72시간 경과 → 사진 공개
+  await page.goBack();
+  await expect(page.getByText("✓ 1일차")).toBeVisible();
+  for (const [phrase, day] of [["저도 정말 좋아해요!", "2일차"], ["오늘 하루는 어땠어요?", "3일차"]] as const) {
+    await page.getByRole("button", { name: /하루 지난 것으로 만들기/ }).click();
+    await page.getByRole("button", { name: "준비된 문장" }).click();
+    await page.getByRole("button", { name: phrase }).click();
+    await expect(page.getByText(`✓ ${day}`)).toBeVisible();
+  }
+  await expect(page.getByRole("img", { name: "Yuki의 사진 (잠김)" })).toBeVisible();
+  await page.getByRole("button", { name: /하루 지난 것으로 만들기/ }).click();
+  await expect(page.getByText(/Yuki의 사진이 공개됐어요/)).toBeVisible();
+  await expect(page.getByRole("img", { name: "Yuki의 사진 (일러스트)" })).toBeVisible();
 
   // 대화 목록
   await page.goto("/conversations");
   await expect(page.getByText("💛 Connect").first()).toBeVisible();
   await expect(page.getByText("1 / 10")).toBeVisible();
+});
+
+test("사진 공개 조건: 3일 매일 대화한 상대(Rina)는 사진이 보이고, 1일차 상대(Mio)는 잠김", async ({ page }) => {
+  await startAs(page, /민준/);
+  await page.goto("/profile?id=jp_004");
+  await expect(page.getByRole("img", { name: "Rina의 사진 (가상 일러스트)" })).toBeVisible();
+  await page.goto("/profile?id=jp_003");
+  await expect(page.getByRole("img", { name: "사진 비공개" })).toBeVisible();
 });
 
 test("안전: 지난 대화 → 신고 → 접수 완료 → 차단", async ({ page }) => {
@@ -134,8 +159,8 @@ test("일본 사용자(Yuki)로 시작: 한국어 메시지가 일본어로 번�
   await page.getByRole("button", { name: "이 질문으로 대화 상대 찾기" }).click();
   await page.getByRole("button", { name: "이 사람과 이야기하기" }).click();
   await page.getByRole("button", { name: "질문 보내기" }).click();
-  await expect(page.getByText("저는 라멘을 정말 좋아해요! 일본에 가면 제일 먼저 먹고 싶어요.")).toBeVisible();
   await expect(page.getByText("僕はラーメンが本当に好きです！日本に行ったら一番に食べたいです。")).toBeVisible();
+  await expect(page.getByText("저는 라멘을 정말 좋아해요! 일본에 가면 제일 먼저 먹고 싶어요.")).toBeHidden();
 });
 
 test("직접 가입: 온보딩 7단계 → 빈 대화 목록", async ({ page }) => {

@@ -25,8 +25,8 @@ export default function WelcomePage() {
 
         <div className="relative mt-16 space-y-3" aria-hidden>
           <div className="w-fit animate-fade-up rounded-3xl rounded-bl-md bg-paper px-4 py-3 shadow-sm">
-            <p lang="ja">今日はカフェに行きました！</p>
-            <p className="mt-1 border-t border-line pt-1 text-sm text-sea">오늘 카페에 갔어요!</p>
+            <p>오늘 카페에 갔어요!</p>
+            <p className="mt-1 text-[11px] text-muted">🌐 일본어에서 번역됨</p>
           </div>
           <div className="ml-auto w-fit animate-fade-up rounded-3xl rounded-br-md bg-sea px-4 py-3 text-white shadow-sm [animation-delay:0.2s]">
             어떤 카페였어요? ☕

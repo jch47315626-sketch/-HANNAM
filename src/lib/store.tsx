@@ -11,6 +11,7 @@ import { buildSeed } from "@/data/seed";
 import { GENERIC_REPLIES, REPLY_SCRIPTS } from "@/data/scripts";
 import { getMockUser, USERS } from "@/data/users";
 import { recommend, type Recommendation } from "@/services/matching";
+import { photoRevealStatus, type PhotoRevealStatus } from "@/services/reveal";
 import type {
   Block,
   Conversation,
@@ -93,7 +94,8 @@ type Action =
   | { type: "ADD_REPORT"; report: Report }
   | { type: "SET_USAGE"; usage: DailyUsage }
   | { type: "SET_DEMO"; patch: Partial<DemoSettings> }
-  | { type: "CLEAR_CELEBRATE" };
+  | { type: "CLEAR_CELEBRATE" }
+  | { type: "SHIFT_TIME"; conversationId: string; ms: number };
 
 function updateConv(state: State, id: string, fn: (c: Conversation) => Conversation): Conversation[] {
   return state.conversations.map((c) => (c.id === id ? fn(c) : c));
@@ -196,7 +198,7 @@ function reducer(state: State, action: Action): State {
               id: uid("msg"),
               conversationId: conv.id,
               senderId: "system",
-              originalText: "🎉 서로 Connect했어요! 이제 서로의 프로필과 사진을 볼 수 있어요.",
+              originalText: "🎉 서로 Connect했어요! 이제 서로의 상세 프로필을 볼 수 있어요.",
               originalLanguage: "ko" as LanguageCode,
               kind: "system" as MessageKind,
               createdAt: action.at,
@@ -254,6 +256,20 @@ function reducer(state: State, action: Action): State {
       return { ...state, demo: { ...state.demo, ...action.patch } };
     case "CLEAR_CELEBRATE":
       return { ...state, celebrate: null };
+    case "SHIFT_TIME": {
+      const back = (iso: string) => new Date(new Date(iso).getTime() - action.ms).toISOString();
+      return {
+        ...state,
+        messages: state.messages.map((m) =>
+          m.conversationId === action.conversationId ? { ...m, createdAt: back(m.createdAt) } : m,
+        ),
+        conversations: updateConv(state, action.conversationId, (c) => ({
+          ...c,
+          startedAt: back(c.startedAt),
+          lastMessageAt: back(c.lastMessageAt),
+        })),
+      };
+    }
   }
 }
 
@@ -281,6 +297,10 @@ interface Store {
   isBlocked: (userId: string) => boolean;
   conversationWith: (userId: string) => Conversation | undefined;
   messagesOf: (conversationId: string) => Message[];
+  /** 사진 공개 조건 진행 상황 (첫 채팅 후 72시간 + 3일 매일 대화) */
+  photoStatus: (c: Conversation) => PhotoRevealStatus;
+  /** 상대 사진을 볼 수 있는지 */
+  canSeePhoto: (userId: string) => boolean;
   recommendations: (topicId?: string) => Recommendation[];
   reportQuota: { today: number; month: number };
 
@@ -301,6 +321,8 @@ interface Store {
   setDemo: (patch: Partial<DemoSettings>) => void;
   setUsageCount: (n: number) => void;
   clearCelebrate: () => void;
+  /** 데모: 대화 기록을 하루 전으로 옮겨 '다음 날'을 흉내낸다 */
+  advanceDay: (conversationId: string) => void;
 }
 
 const StoreContext = createContext<Store | null>(null);
@@ -443,6 +465,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       isBlocked: (userId) => blockedIds.has(userId),
       conversationWith,
       messagesOf: (conversationId) => state.messages.filter((m) => m.conversationId === conversationId),
+      photoStatus: (c) => photoRevealStatus(c, state.messages),
+      canSeePhoto: (userId) => {
+        const c = conversationWith(userId);
+        return !!c && c.status !== "BLOCKED" && photoRevealStatus(c, state.messages).unlocked;
+      },
       recommendations: (topicId) =>
         me
           ? recommend(me, USERS, topicId, {
@@ -587,6 +614,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         dispatch({ type: "SET_USAGE", usage: { date: todayKey(), partnerIds: ids } });
       },
       clearCelebrate: () => dispatch({ type: "CLEAR_CELEBRATE" }),
+      advanceDay: (conversationId) => dispatch({ type: "SHIFT_TIME", conversationId, ms: 86_400_000 }),
     };
   }, [state, me, getUser, usedToday, blockedIds, reportQuota, later, scheduleConnectResponse]);
 

@@ -21,7 +21,7 @@ export default function ProfilePage() {
 
 function PublicProfile() {
   const params = useSearchParams();
-  const { me, getUser, conversationWith, isBlocked, unblock } = useStore();
+  const { me, getUser, conversationWith, isBlocked, unblock, canSeePhoto } = useStore();
   const [blockOpen, setBlockOpen] = useState(false);
   const user = getUser(params.get("id") ?? "");
 
@@ -36,6 +36,7 @@ function PublicProfile() {
 
   const conv = conversationWith(user.id);
   const revealed = conv?.status === "CONNECTED";
+  const photoVisible = canSeePhoto(user.id);
   const blocked = isBlocked(user.id);
   const country = COUNTRIES[user.country];
   const myCountryName = COUNTRIES[me.country].name;
@@ -44,7 +45,7 @@ function PublicProfile() {
     <>
       <TopBar title={`${user.nickname}의 프로필`} back={true} />
       <div className="space-y-4 px-5 py-5">
-        <LockedPhoto user={user} revealed={revealed} />
+        <LockedPhoto user={user} revealed={photoVisible} />
 
         <div className="text-center">
           <h1 className="text-2xl font-bold">
@@ -58,7 +59,8 @@ function PublicProfile() {
 
         {revealed && (
           <p className="rounded-2xl bg-sun-soft p-3 text-center text-sm text-[#7a5200]">
-            ✨ 서로 Connect해서 프로필과 사진이 공개됐어요.
+            ✨ 서로 Connect해서 상세 프로필이 공개됐어요.
+            {!photoVisible && " 사진은 3일 동안 매일 대화하면 공개돼요."}
           </p>
         )}
 

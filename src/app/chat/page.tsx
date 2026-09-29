@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { CONNECT_MESSAGE_THRESHOLD, COUNTRIES } from "@/data/config";
+import { CONNECT_MESSAGE_THRESHOLD, COUNTRIES, PHOTO_REVEAL_DAYS } from "@/data/config";
 import { FOLLOW_UPS, INTEREST_HINTS, QUICK_PHRASES } from "@/data/scripts";
 import { getQuestion, getTopic } from "@/data/topics";
 import { AppShell } from "@/components/shell";
@@ -74,6 +74,7 @@ function Chat() {
   const connectReady = chatCount >= CONNECT_MESSAGE_THRESHOLD;
   const showConnectPrompt = open && !connected && !iConnected && connectReady && !conv.connectPromptDismissed;
   const country = COUNTRIES[partner.country];
+  const photo = store.photoStatus(conv);
 
   const followUps: Localized[] = [
     ...(FOLLOW_UPS[conv.topicId] ?? []),
@@ -100,7 +101,7 @@ function Chat() {
             ←
           </button>
           <Link href={`/profile?id=${partner.id}`} className="flex min-w-0 flex-1 items-center gap-2.5">
-            <Avatar user={partner} revealed={connected} size={40} />
+            <Avatar user={partner} revealed={photo.unlocked && conv.status !== "BLOCKED"} size={40} />
             <div className="min-w-0">
               <p className="truncate font-bold leading-tight">
                 {partner.nickname} · {partner.age}
@@ -142,7 +143,7 @@ function Chat() {
               <span aria-hidden>🌐</span>
               <p className="flex-1 text-xs leading-relaxed">
                 {mySettings.translationEnabled
-                  ? "번역 ON: 원문과 번역을 함께 보여줘요."
+                  ? "번역 ON: 번역된 문장만 보여줘요. 원문이 궁금하면 [원문 보기]를 눌러보세요."
                   : "번역 OFF: 원문만 보여줘요. 필요할 때 [번역 보기]를 눌러보세요."}{" "}
                 번역 설정은 나에게만 적용되고, 상대의 설정은 바뀌지 않아요.
               </p>
@@ -208,7 +209,7 @@ function Chat() {
             <p className="mt-1 text-sm text-muted">
               서로 Connect하면
               <br />
-              프로필과 사진을 확인할 수 있어요.
+              상세 프로필을 확인할 수 있어요.
             </p>
             <div className="mt-4 grid grid-cols-2 gap-2">
               <Button variant="secondary" onClick={() => store.dismissConnectPrompt(conv.id)}>
@@ -221,7 +222,7 @@ function Chat() {
 
         {open && iConnected && !connected && (
           <Banner tone="love">
-            💛 Connect를 보냈어요. {partner.nickname}도 Connect하면 프로필과 사진이 공개돼요.
+            💛 Connect를 보냈어요. {partner.nickname}도 Connect하면 상세 프로필이 공개돼요.
             <span className="mt-1 block text-xs opacity-80">상대에게는 내가 먼저 보냈다는 사실이 바로 알려지지 않아요.</span>
           </Banner>
         )}
@@ -236,6 +237,8 @@ function Chat() {
             </div>
           </Banner>
         )}
+
+        {open && photo.started && <PhotoProgress status={photo} name={partner.nickname} onNextDay={() => store.advanceDay(conv.id)} />}
 
         {conv.status === "ENDED" && (
           <Banner>
@@ -382,6 +385,54 @@ function Chat() {
       </Modal>
 
       <BlockDialog user={partner} open={blockOpen} onClose={() => setBlockOpen(false)} />
+    </div>
+  );
+}
+
+function PhotoProgress({
+  status,
+  name,
+  onNextDay,
+}: {
+  status: ReturnType<ReturnType<typeof useStore>["photoStatus"]>;
+  name: string;
+  onNextDay: () => void;
+}) {
+  if (status.unlocked) {
+    return (
+      <Banner tone="love">
+        📷 {PHOTO_REVEAL_DAYS}일 동안 매일 대화해서 {name}의 사진이 공개됐어요.
+      </Banner>
+    );
+  }
+  const hoursLeft = Math.max(0, Math.ceil(status.hoursRequired - status.hoursElapsed));
+  return (
+    <div className="rounded-2xl border border-line bg-paper px-4 py-3">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-sm font-semibold">📷 사진 공개까지</p>
+        <p className="text-xs text-muted">{hoursLeft > 0 ? `${hoursLeft}시간 남음` : "시간 조건 완료"}</p>
+      </div>
+      <ol className="mt-2 grid grid-cols-3 gap-1.5" aria-label="매일 대화 진행">
+        {status.days.map((done, i) => (
+          <li
+            key={i}
+            className={cn(
+              "rounded-xl py-1.5 text-center text-xs",
+              done ? "bg-sea-soft font-semibold text-sea" : "bg-cream text-muted",
+            )}
+          >
+            {done ? "✓" : "○"} {i + 1}일차
+          </li>
+        ))}
+      </ol>
+      <p className="mt-2 text-[11px] leading-relaxed text-muted">
+        {status.broken
+          ? "하루라도 대화를 쉬면 사진이 공개되지 않아요. (데모에서는 대화를 새로 시작해 다시 확인할 수 있어요.)"
+          : `첫 채팅 후 ${status.hoursRequired}시간이 지나고, ${PHOTO_REVEAL_DAYS}일 동안 매일 서로 메시지를 주고받으면 사진이 공개돼요.`}
+      </p>
+      <button onClick={onNextDay} className="mt-2 text-[11px] font-semibold text-sea underline-offset-2 hover:underline">
+        🧪 데모: 하루 지난 것으로 만들기
+      </button>
     </div>
   );
 }

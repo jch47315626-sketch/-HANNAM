@@ -27,7 +27,7 @@ function Conversations() {
   const params = useSearchParams();
   const router = useRouter();
   const tab = params.get("tab") === "past" ? "past" : "active";
-  const { state, partnerOf, messagesOf, me } = useStore();
+  const { state, partnerOf, messagesOf, me, canSeePhoto } = useStore();
   const [blockTarget, setBlockTarget] = useState<UserProfile | null>(null);
 
   const sorted = [...state.conversations].sort((a, b) => b.lastMessageAt.localeCompare(a.lastMessageAt));
@@ -90,7 +90,7 @@ function Conversations() {
             return (
               <li key={c.id} className="rounded-3xl bg-paper">
                 <Link href={`/chat?id=${c.id}`} className="flex items-center gap-3 p-4">
-                  <Avatar user={p} revealed={revealed} size={48} />
+                  <Avatar user={p} revealed={canSeePhoto(p.id)} size={48} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                       <p className="font-bold">

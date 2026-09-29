@@ -171,7 +171,7 @@ function Discover() {
                 </div>
               )}
 
-              <p className="mt-4 text-center text-xs text-muted">🔒 사진은 서로 Connect한 뒤에 공개돼요</p>
+              <p className="mt-4 text-center text-xs text-muted">🔒 사진은 첫 채팅 후 3일 동안 매일 대화하면 공개돼요</p>
             </article>
 
             <div className="mt-auto space-y-2 pt-6">

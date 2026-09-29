@@ -16,7 +16,7 @@ export default function HomePage() {
 }
 
 function Home() {
-  const { me, state, partnerOf } = useStore();
+  const { me, state, partnerOf, canSeePhoto } = useStore();
   if (!me) return null;
   const active = state.conversations
     .filter((c) => c.status === "ACTIVE" || c.status === "CONNECTED")
@@ -81,7 +81,7 @@ function Home() {
               return (
                 <li key={c.id}>
                   <Link href={`/chat?id=${c.id}`} className="flex items-center gap-3 rounded-2xl bg-paper p-3">
-                    <Avatar user={p} revealed={c.status === "CONNECTED"} size={40} />
+                    <Avatar user={p} revealed={canSeePhoto(p.id)} size={40} />
                     <span className="flex-1 font-semibold">{p.nickname}</span>
                     <span className="text-xs text-muted">{relativeTime(c.lastMessageAt)}</span>
                   </Link>

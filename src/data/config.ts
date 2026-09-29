@@ -12,6 +12,8 @@ export const COUNTRY_PAIR: { source: CountryCode; target: CountryCode } = {
 export const DAILY_NEW_CHAT_LIMIT = 10;
 /** Connect를 제안하기까지 필요한 메시지 수 */
 export const CONNECT_MESSAGE_THRESHOLD = 6;
+/** 사진 공개 조건: 첫 채팅 후 N×24시간이 지나고, 첫 채팅한 날부터 N일 동안 매일 대화 */
+export const PHOTO_REVEAL_DAYS = 3;
 export const REPORT_LIMIT_PER_DAY = 3;
 export const REPORT_LIMIT_PER_MONTH = 10;
 export const MIN_AGE = 19;
