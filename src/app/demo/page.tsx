@@ -5,7 +5,7 @@ import { useState } from "react";
 import { COUNTRIES, LANGUAGES, PURPOSES } from "@/data/config";
 import { DEMO_USER_IDS, getMockUser } from "@/data/users";
 import { AppShell, TopBar } from "@/components/shell";
-import { Avatar, InterestChips, NameLine, PurposeBadge } from "@/components/profile";
+import { Avatar, InterestChips, NameLine } from "@/components/profile";
 import { Button, Card } from "@/components/ui";
 import { useStore } from "@/lib/store";
 
@@ -28,9 +28,6 @@ export default function DemoPage() {
             <p className="text-sm text-muted">
               {COUNTRIES[user.country].flag} {user.city} · {user.mbti}
             </p>
-            <div className="mt-3 flex justify-center">
-              <PurposeBadge purpose={user.purpose} />
-            </div>
             <p className="mt-4 text-sm text-ink-soft">{user.bio}</p>
             <div className="mt-4 flex justify-center">
               <InterestChips ids={user.interests} />
@@ -104,7 +101,6 @@ export default function DemoPage() {
                       <NameLine user={u} />
                     </p>
                     <p className="truncate text-sm text-muted">{u.bio}</p>
-                    <PurposeBadge purpose={u.purpose} className="mt-1.5" />
                   </div>
                   <span aria-hidden className="text-muted">
                     ›

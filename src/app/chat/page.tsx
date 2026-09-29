@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { CONNECT_MESSAGE_THRESHOLD, COUNTRIES } from "@/data/config";
-import { FOLLOW_UPS, INTEREST_HINTS, QUICK_PHRASES } from "@/data/scripts";
-import { getQuestion, getTopic } from "@/data/topics";
+import { COUNTRIES } from "@/data/config";
+import { QUICK_PHRASES } from "@/data/scripts";
+import { getTopic } from "@/data/topics";
 import { AppShell } from "@/components/shell";
 import { Banner, MessageBubble, TypingBubble } from "@/components/chat";
-import { Avatar, PurposeBadge } from "@/components/profile";
+import { Avatar, NameLine } from "@/components/profile";
 import { BlockDialog } from "@/components/safety";
 import { Button, ButtonLink, EmptyState, Modal, Switch } from "@/components/ui";
 import { useStore } from "@/lib/store";
@@ -40,24 +40,14 @@ function Chat() {
   const [blockOpen, setBlockOpen] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
   const [phrasesOpen, setPhrasesOpen] = useState(false);
-  const [suggestOpen, setSuggestOpen] = useState(false);
-  const [suggestIndex, setSuggestIndex] = useState(0);
   const [tipSeen, setTipSeen] = useState(false);
   const bottom = useRef<HTMLDivElement>(null);
 
-  const last = messages[messages.length - 1];
-  const lastFromPartner = !!last && !!partner && last.senderId === partner.id;
 
   useEffect(() => {
     bottom.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages.length, typing, suggestOpen]);
+  }, [messages.length, typing]);
 
-  // 대화가 잠시 멈추면 '대화 이어가기' 제안
-  useEffect(() => {
-    if (!lastFromPartner || typing) return;
-    const t = window.setTimeout(() => setSuggestOpen(true), 4500);
-    return () => window.clearTimeout(t);
-  }, [lastFromPartner, typing, messages.length]);
 
   if (!me) return null;
   if (!conv || !partner) {
@@ -65,28 +55,19 @@ function Chat() {
   }
 
   const topic = getTopic(conv.topicId);
-  const pendingQuestion = getQuestion(conv.pendingQuestionId)?.question;
   const mySettings = conv.memberSettings[me.id] ?? { translationEnabled: true, learningMode: false };
   const open = conv.status === "ACTIVE" || conv.status === "CONNECTED";
   const connected = conv.status === "CONNECTED";
   const iConnected = !!conv.connect[me.id];
-  const chatCount = messages.filter((m) => m.kind !== "system").length;
-  const connectReady = chatCount >= CONNECT_MESSAGE_THRESHOLD;
+  const connectReady = store.connectReady(conv);
   const showConnectPrompt = open && !connected && !iConnected && connectReady && !conv.connectPromptDismissed;
   const country = COUNTRIES[partner.country];
+  const photo = store.photoStatus(conv);
 
-  const followUps: Localized[] = [
-    ...(FOLLOW_UPS[conv.topicId] ?? []),
-    ...Object.entries(FOLLOW_UPS)
-      .filter(([k]) => k !== conv.topicId)
-      .flatMap(([, v]) => v),
-  ];
-  const suggestion = followUps[suggestIndex % followUps.length];
 
-  const send = (value: string, kind: "text" | "question" = "text") => {
-    store.sendMessage(conv.id, value, kind);
+  const send = (value: string) => {
+    store.sendMessage(conv.id, value);
     setText("");
-    setSuggestOpen(false);
     setPhrasesOpen(false);
   };
   const local = (l: Localized) => l[me.nativeLanguage] ?? l.ko;
@@ -100,14 +81,13 @@ function Chat() {
             ←
           </button>
           <Link href={`/profile?id=${partner.id}`} className="flex min-w-0 flex-1 items-center gap-2.5">
-            <Avatar user={partner} revealed={connected} size={40} />
+            <Avatar user={partner} revealed={photo.unlocked && conv.status !== "BLOCKED"} size={40} />
             <div className="min-w-0">
-              <p className="truncate font-bold leading-tight">
-                {partner.nickname} · {partner.age}
+              <p className="font-bold leading-tight">
+                <NameLine user={partner} flag={false} />
               </p>
-              <p className="flex items-center gap-1.5 truncate text-xs text-muted">
+              <p className="truncate text-xs text-muted">
                 {country.flag} {partner.city}
-                <PurposeBadge purpose={partner.purpose} className="!px-1.5 !py-0 text-[10px]" />
               </p>
             </div>
           </Link>
@@ -142,7 +122,7 @@ function Chat() {
               <span aria-hidden>🌐</span>
               <p className="flex-1 text-xs leading-relaxed">
                 {mySettings.translationEnabled
-                  ? "번역 ON: 원문과 번역을 함께 보여줘요."
+                  ? "번역 ON: 번역된 문장만 보여줘요. 원문이 궁금하면 [원문 보기]를 눌러보세요."
                   : "번역 OFF: 원문만 보여줘요. 필요할 때 [번역 보기]를 눌러보세요."}{" "}
                 번역 설정은 나에게만 적용되고, 상대의 설정은 바뀌지 않아요.
               </p>
@@ -166,41 +146,14 @@ function Chat() {
           />
         ))}
 
-        {pendingQuestion && open && messages.length === 0 && (
-          <div className="animate-fade-up rounded-3xl border border-sea/30 bg-paper p-5 text-center">
-            <p className="text-xs font-semibold text-sea">오늘의 질문</p>
-            <p className="mt-2 text-lg font-bold">“{local(pendingQuestion.text)}”</p>
-            <p className="mt-1 text-xs text-muted">{partner.nickname}에게는 {country.flag} 번역되어 전달돼요.</p>
-            <Button block className="mt-4" onClick={() => send(local(pendingQuestion.text), "question")}>
-              질문 보내기
-            </Button>
-          </div>
+        {open && messages.length === 0 && (
+          <p className="py-6 text-center text-sm text-muted">
+            👋 {partner.nickname}에게 먼저 인사해보세요.
+          </p>
         )}
 
         {typing && <TypingBubble name={partner.nickname} />}
 
-        {open && suggestOpen && !typing && (
-          <div className="animate-fade-up rounded-3xl bg-sun-soft p-4">
-            <p className="text-sm font-bold">💡 이야기를 계속해볼까요?</p>
-            <p className="mt-1 text-xs text-ink-soft">
-              {partner.nickname}은(는) {INTEREST_HINTS[conv.topicId] ?? "이야기"}를 좋아한다고 했어요.
-            </p>
-            <button
-              onClick={() => send(local(suggestion))}
-              className="mt-3 w-full rounded-2xl bg-paper px-4 py-3 text-left text-sm font-semibold hover:shadow-sm"
-            >
-              “{local(suggestion)}”
-            </button>
-            <div className="mt-2 flex justify-between">
-              <button onClick={() => setSuggestIndex((i) => i + 1)} className="text-xs font-semibold text-ink-soft">
-                ↻ 다른 질문
-              </button>
-              <button onClick={() => setSuggestOpen(false)} className="text-xs text-muted">
-                닫기
-              </button>
-            </div>
-          </div>
-        )}
 
         {showConnectPrompt && (
           <div className="animate-fade-up rounded-3xl border border-sun/50 bg-paper p-5 text-center">
@@ -208,7 +161,7 @@ function Chat() {
             <p className="mt-1 text-sm text-muted">
               서로 Connect하면
               <br />
-              프로필과 사진을 확인할 수 있어요.
+              상세 프로필을 확인할 수 있어요.
             </p>
             <div className="mt-4 grid grid-cols-2 gap-2">
               <Button variant="secondary" onClick={() => store.dismissConnectPrompt(conv.id)}>
@@ -221,7 +174,7 @@ function Chat() {
 
         {open && iConnected && !connected && (
           <Banner tone="love">
-            💛 Connect를 보냈어요. {partner.nickname}도 Connect하면 프로필과 사진이 공개돼요.
+            💛 Connect를 보냈어요. {partner.nickname}도 Connect하면 상세 프로필이 공개돼요.
             <span className="mt-1 block text-xs opacity-80">상대에게는 내가 먼저 보냈다는 사실이 바로 알려지지 않아요.</span>
           </Banner>
         )}
@@ -236,6 +189,7 @@ function Chat() {
             </div>
           </Banner>
         )}
+
 
         {conv.status === "ENDED" && (
           <Banner>
@@ -272,14 +226,6 @@ function Chat() {
             >
               <button
                 type="button"
-                onClick={() => setSuggestOpen((v) => !v)}
-                aria-label="대화 이어가기 질문 보기"
-                className={cn("rounded-full p-2 text-lg", suggestOpen && "bg-sun-soft")}
-              >
-                💡
-              </button>
-              <button
-                type="button"
                 onClick={() => setPhrasesOpen((v) => !v)}
                 aria-label="준비된 문장"
                 aria-expanded={phrasesOpen}
@@ -310,11 +256,6 @@ function Chat() {
               <button onClick={() => store.requestConnect(conv.id)} className="mt-2 w-full text-center text-xs font-semibold text-brand">
                 💛 Connect 보내기
               </button>
-            )}
-            {!connectReady && !connected && (
-              <p className="mt-1.5 text-center text-[11px] text-muted">
-                메시지를 {CONNECT_MESSAGE_THRESHOLD - chatCount}개 더 나누면 Connect할 수 있어요.
-              </p>
             )}
           </>
         ) : (

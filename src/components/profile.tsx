@@ -79,7 +79,7 @@ export function LockedPhoto({ user, revealed }: { user: UserProfile; revealed?: 
               🔒
             </div>
             <p className="mt-2 text-sm font-semibold text-ink-soft">사진 비공개</p>
-            <p className="mt-1 text-xs text-muted">서로 Connect하면 공개돼요</p>
+            <p className="mt-1 text-xs text-muted">첫 채팅 후 3일 동안 매일 대화하면 공개돼요</p>
           </div>
         </>
       )}
@@ -87,7 +87,15 @@ export function LockedPhoto({ user, revealed }: { user: UserProfile; revealed?: 
   );
 }
 
-export function PurposeBadge({ purpose, className }: { purpose: Purpose; className?: string }) {
+export function PurposeBadge({
+  purpose,
+  className,
+  size = "md",
+}: {
+  purpose: Purpose;
+  className?: string;
+  size?: "sm" | "md";
+}) {
   const p = PURPOSES[purpose];
   const tone =
     purpose === "language"
@@ -96,18 +104,41 @@ export function PurposeBadge({ purpose, className }: { purpose: Purpose; classNa
         ? "bg-sun-soft text-[#9a6a06]"
         : "bg-brand-soft text-brand-strong";
   return (
-    <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold", tone, className)}>
+    <span
+      className={cn(
+        "inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full font-semibold",
+        size === "sm" ? "px-2 py-0.5 text-[11px]" : "px-2.5 py-1 text-xs",
+        tone,
+        className,
+      )}
+    >
       <span aria-hidden>{p.icon}</span>
       {p.label}
     </span>
   );
 }
 
-export function NameLine({ user, className }: { user: UserProfile; className?: string }) {
+/** 닉네임 옆에 만남 목적(💛 좋은 인연 / 🗣️ 언어교류 / 🌏 둘 다)을 항상 함께 표시한다 */
+export function NameLine({
+  user,
+  className,
+  flag = true,
+  age = true,
+}: {
+  user: UserProfile;
+  className?: string;
+  flag?: boolean;
+  age?: boolean;
+}) {
   const c = COUNTRIES[user.country];
   return (
-    <span className={className}>
-      <span aria-label={c.name}>{c.flag}</span> {user.nickname} · {user.age}
+    <span className={cn("inline-flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1", className)}>
+      <span className="min-w-0 truncate">
+        {flag && <span aria-label={c.name}>{c.flag} </span>}
+        {user.nickname}
+        {age && ` · ${user.age}`}
+      </span>
+      <PurposeBadge purpose={user.purpose} size="sm" />
     </span>
   );
 }

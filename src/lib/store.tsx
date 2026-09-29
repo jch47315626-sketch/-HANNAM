@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from "react";
 import {
+  CONNECT_MESSAGE_THRESHOLD,
   COUNTRY_PAIR,
   DAILY_NEW_CHAT_LIMIT,
   REPORT_LIMIT_PER_DAY,
@@ -11,6 +12,7 @@ import { buildSeed } from "@/data/seed";
 import { GENERIC_REPLIES, REPLY_SCRIPTS } from "@/data/scripts";
 import { getMockUser, USERS } from "@/data/users";
 import { recommend, type Recommendation } from "@/services/matching";
+import { photoRevealStatus, type PhotoRevealStatus } from "@/services/reveal";
 import type {
   Block,
   Conversation,
@@ -93,7 +95,9 @@ type Action =
   | { type: "ADD_REPORT"; report: Report }
   | { type: "SET_USAGE"; usage: DailyUsage }
   | { type: "SET_DEMO"; patch: Partial<DemoSettings> }
-  | { type: "CLEAR_CELEBRATE" };
+  | { type: "CLEAR_CELEBRATE" }
+  | { type: "SHIFT_TIME"; conversationId: string; ms: number }
+  | { type: "DEMO_FILL_MESSAGES"; conversationId: string; count: number };
 
 function updateConv(state: State, id: string, fn: (c: Conversation) => Conversation): Conversation[] {
   return state.conversations.map((c) => (c.id === id ? fn(c) : c));
@@ -135,11 +139,7 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         messages: [...state.messages, m],
-        conversations: updateConv(state, m.conversationId, (c) => ({
-          ...c,
-          lastMessageAt: m.createdAt,
-          pendingQuestionId: m.kind === "question" ? undefined : c.pendingQuestionId,
-        })),
+        conversations: updateConv(state, m.conversationId, (c) => ({ ...c, lastMessageAt: m.createdAt })),
       };
     }
     case "PARTNER_REPLY": {
@@ -196,7 +196,7 @@ function reducer(state: State, action: Action): State {
               id: uid("msg"),
               conversationId: conv.id,
               senderId: "system",
-              originalText: "🎉 서로 Connect했어요! 이제 서로의 프로필과 사진을 볼 수 있어요.",
+              originalText: "🎉 서로 Connect했어요! 이제 서로의 상세 프로필을 볼 수 있어요.",
               originalLanguage: "ko" as LanguageCode,
               kind: "system" as MessageKind,
               createdAt: action.at,
@@ -254,6 +254,25 @@ function reducer(state: State, action: Action): State {
       return { ...state, demo: { ...state.demo, ...action.patch } };
     case "CLEAR_CELEBRATE":
       return { ...state, celebrate: null };
+    case "DEMO_FILL_MESSAGES":
+      return {
+        ...state,
+        conversations: updateConv(state, action.conversationId, (c) => ({ ...c, demoExtraMessages: action.count })),
+      };
+    case "SHIFT_TIME": {
+      const back = (iso: string) => new Date(new Date(iso).getTime() - action.ms).toISOString();
+      return {
+        ...state,
+        messages: state.messages.map((m) =>
+          m.conversationId === action.conversationId ? { ...m, createdAt: back(m.createdAt) } : m,
+        ),
+        conversations: updateConv(state, action.conversationId, (c) => ({
+          ...c,
+          startedAt: back(c.startedAt),
+          lastMessageAt: back(c.lastMessageAt),
+        })),
+      };
+    }
   }
 }
 
@@ -281,6 +300,10 @@ interface Store {
   isBlocked: (userId: string) => boolean;
   conversationWith: (userId: string) => Conversation | undefined;
   messagesOf: (conversationId: string) => Message[];
+  /** 사진 공개 조건 진행 상황 (첫 채팅 후 72시간 + 3일 매일 대화) */
+  photoStatus: (c: Conversation) => PhotoRevealStatus;
+  /** 상대 사진을 볼 수 있는지 */
+  canSeePhoto: (userId: string) => boolean;
   recommendations: (topicId?: string) => Recommendation[];
   reportQuota: { today: number; month: number };
 
@@ -289,7 +312,7 @@ interface Store {
   resetAll: () => void;
   updateProfile: (patch: Partial<UserProfile>) => void;
   completeOnboarding: () => void;
-  startConversation: (partnerId: string, topicId: string, questionId?: string) => StartResult;
+  startConversation: (partnerId: string, topicId: string) => StartResult;
   sendMessage: (conversationId: string, text: string, kind?: MessageKind) => void;
   setTranslation: (conversationId: string, enabled: boolean) => void;
   requestConnect: (conversationId: string) => void;
@@ -301,6 +324,12 @@ interface Store {
   setDemo: (patch: Partial<DemoSettings>) => void;
   setUsageCount: (n: number) => void;
   clearCelebrate: () => void;
+  /** 데모: 대화 기록을 하루 전으로 옮겨 '다음 날'을 흉내낸다 */
+  advanceDay: (conversationId: string) => void;
+  /** 데모: Connect 조건(메시지 수)을 채운 것으로 만든다 */
+  fillMessagesForDemo: (conversationId: string) => void;
+  /** Connect 조건을 채웠는지 */
+  connectReady: (c: Conversation) => boolean;
 }
 
 const StoreContext = createContext<Store | null>(null);
@@ -443,6 +472,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       isBlocked: (userId) => blockedIds.has(userId),
       conversationWith,
       messagesOf: (conversationId) => state.messages.filter((m) => m.conversationId === conversationId),
+      photoStatus: (c) => photoRevealStatus(c, state.messages),
+      canSeePhoto: (userId) => {
+        const c = conversationWith(userId);
+        return !!c && c.status !== "BLOCKED" && photoRevealStatus(c, state.messages).unlocked;
+      },
       recommendations: (topicId) =>
         me
           ? recommend(me, USERS, topicId, {
@@ -480,7 +514,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       updateProfile: (patch) => dispatch({ type: "UPDATE_PROFILE", patch }),
       completeOnboarding: () => dispatch({ type: "COMPLETE_ONBOARDING" }),
 
-      startConversation: (partnerId, topicId, questionId) => {
+      startConversation: (partnerId, topicId) => {
         if (!me) return { ok: false, reason: "no-user" };
         if (blockedIds.has(partnerId)) return { ok: false, reason: "blocked" };
         const existing = conversationWith(partnerId);
@@ -492,7 +526,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           id: uid("conv"),
           memberIds: [me.id, partnerId],
           topicId,
-          questionId,
           status: "ACTIVE",
           startedAt: now,
           lastMessageAt: now,
@@ -501,7 +534,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             [me.id]: { translationEnabled: state.demo.defaultTranslation, learningMode: false },
             [partnerId]: { translationEnabled: true, learningMode: false },
           },
-          pendingQuestionId: questionId,
           scriptCursor: 0,
         };
         dispatch({ type: "START_CONVERSATION", conversation, countUsage: true });
@@ -587,6 +619,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         dispatch({ type: "SET_USAGE", usage: { date: todayKey(), partnerIds: ids } });
       },
       clearCelebrate: () => dispatch({ type: "CLEAR_CELEBRATE" }),
+      advanceDay: (conversationId) => dispatch({ type: "SHIFT_TIME", conversationId, ms: 86_400_000 }),
+      fillMessagesForDemo: (conversationId) =>
+        dispatch({ type: "DEMO_FILL_MESSAGES", conversationId, count: CONNECT_MESSAGE_THRESHOLD }),
+      connectReady: (c) =>
+        state.messages.filter((m) => m.conversationId === c.id && m.kind !== "system").length +
+          (c.demoExtraMessages ?? 0) >=
+        CONNECT_MESSAGE_THRESHOLD,
     };
   }, [state, me, getUser, usedToday, blockedIds, reportQuota, later, scheduleConnectResponse]);
 

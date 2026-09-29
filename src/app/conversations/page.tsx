@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { COUNTRIES } from "@/data/config";
 import { AppShell, DailyCounter, TopBar } from "@/components/shell";
-import { Avatar, PurposeBadge } from "@/components/profile";
+import { Avatar, NameLine } from "@/components/profile";
 import { BlockDialog } from "@/components/safety";
 import { ButtonLink, EmptyState } from "@/components/ui";
 import { useStore } from "@/lib/store";
@@ -27,7 +26,7 @@ function Conversations() {
   const params = useSearchParams();
   const router = useRouter();
   const tab = params.get("tab") === "past" ? "past" : "active";
-  const { state, partnerOf, messagesOf, me } = useStore();
+  const { state, partnerOf, messagesOf, me, canSeePhoto } = useStore();
   const [blockTarget, setBlockTarget] = useState<UserProfile | null>(null);
 
   const sorted = [...state.conversations].sort((a, b) => b.lastMessageAt.localeCompare(a.lastMessageAt));
@@ -38,7 +37,7 @@ function Conversations() {
   const preview = (c: Conversation) => {
     const msgs = messagesOf(c.id).filter((m) => m.kind !== "system");
     const last = msgs[msgs.length - 1];
-    if (!last) return "아직 메시지가 없어요. 오늘의 질문을 보내보세요!";
+    if (!last) return "아직 메시지가 없어요. 먼저 인사해보세요!";
     if (last.senderId === me?.id) return `나: ${last.originalText}`;
     const translated =
       me && c.memberSettings[me.id]?.translationEnabled
@@ -90,13 +89,13 @@ function Conversations() {
             return (
               <li key={c.id} className="rounded-3xl bg-paper">
                 <Link href={`/chat?id=${c.id}`} className="flex items-center gap-3 p-4">
-                  <Avatar user={p} revealed={revealed} size={48} />
+                  <Avatar user={p} revealed={canSeePhoto(p.id)} size={48} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <p className="font-bold">
-                        {p.nickname} <span aria-label={COUNTRIES[p.country].name}>{COUNTRIES[p.country].flag}</span>
+                      <p className="min-w-0 font-bold">
+                        <NameLine user={p} age={false} />
                       </p>
-                      {revealed && <span className="text-xs text-brand">💛 Connect</span>}
+                      {revealed && <span className="shrink-0 text-xs text-brand">🤝 Connect</span>}
                       {c.status === "BLOCKED" && <span className="rounded-full bg-danger-soft px-2 text-[10px] text-danger">차단됨</span>}
                       {c.status === "ENDED" && <span className="rounded-full bg-cream px-2 text-[10px] text-muted">종료</span>}
                     </div>
@@ -124,7 +123,6 @@ function Conversations() {
                     )}
                   </div>
                 )}
-                {tab === "active" && <PurposeRow user={p} />}
               </li>
             );
           })}
@@ -140,10 +138,3 @@ function Conversations() {
   );
 }
 
-function PurposeRow({ user }: { user: UserProfile }) {
-  return (
-    <div className="-mt-2 px-4 pb-3 pl-[76px]">
-      <PurposeBadge purpose={user.purpose} className="!py-0.5 text-[11px]" />
-    </div>
-  );
-}

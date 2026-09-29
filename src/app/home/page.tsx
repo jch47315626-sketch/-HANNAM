@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { TOPICS } from "@/data/topics";
 import { AppShell, DailyCounter } from "@/components/shell";
-import { Avatar } from "@/components/profile";
+import { Avatar, NameLine } from "@/components/profile";
 import { useStore } from "@/lib/store";
 import { relativeTime } from "@/lib/utils";
 
@@ -16,7 +16,7 @@ export default function HomePage() {
 }
 
 function Home() {
-  const { me, state, partnerOf } = useStore();
+  const { me, state, partnerOf, canSeePhoto } = useStore();
   if (!me) return null;
   const active = state.conversations
     .filter((c) => c.status === "ACTIVE" || c.status === "CONNECTED")
@@ -44,7 +44,7 @@ function Home() {
         {main.map((t) => (
           <li key={t.id}>
             <Link
-              href={`/topic?id=${t.id}`}
+              href={`/discover?topic=${t.id}`}
               className="flex h-full flex-col rounded-3xl border border-line bg-paper p-4 transition hover:-translate-y-0.5 hover:border-sea/40 hover:shadow-sm"
             >
               <span className="text-3xl" aria-hidden>
@@ -58,7 +58,7 @@ function Home() {
       </ul>
 
       <Link
-        href={`/topic?id=${daily.id}`}
+        href={`/discover?topic=${daily.id}`}
         className="mt-3 flex items-center justify-center gap-2 rounded-3xl bg-sea px-4 py-4 font-bold text-white shadow-sm transition hover:brightness-95"
       >
         <span aria-hidden>💬</span> 아무 이야기나
@@ -81,8 +81,10 @@ function Home() {
               return (
                 <li key={c.id}>
                   <Link href={`/chat?id=${c.id}`} className="flex items-center gap-3 rounded-2xl bg-paper p-3">
-                    <Avatar user={p} revealed={c.status === "CONNECTED"} size={40} />
-                    <span className="flex-1 font-semibold">{p.nickname}</span>
+                    <Avatar user={p} revealed={canSeePhoto(p.id)} size={40} />
+                    <span className="min-w-0 flex-1 font-semibold">
+                      <NameLine user={p} age={false} />
+                    </span>
                     <span className="text-xs text-muted">{relativeTime(c.lastMessageAt)}</span>
                   </Link>
                 </li>
