@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { CONNECT_MESSAGE_THRESHOLD, COUNTRIES, PHOTO_REVEAL_DAYS } from "@/data/config";
-import { FOLLOW_UPS, INTEREST_HINTS, QUICK_PHRASES } from "@/data/scripts";
+import { CONNECT_MESSAGE_THRESHOLD, COUNTRIES } from "@/data/config";
+import { QUICK_PHRASES } from "@/data/scripts";
 import { getQuestion, getTopic } from "@/data/topics";
 import { AppShell } from "@/components/shell";
 import { Banner, MessageBubble, TypingBubble } from "@/components/chat";
@@ -40,24 +40,14 @@ function Chat() {
   const [blockOpen, setBlockOpen] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
   const [phrasesOpen, setPhrasesOpen] = useState(false);
-  const [suggestOpen, setSuggestOpen] = useState(false);
-  const [suggestIndex, setSuggestIndex] = useState(0);
   const [tipSeen, setTipSeen] = useState(false);
   const bottom = useRef<HTMLDivElement>(null);
 
-  const last = messages[messages.length - 1];
-  const lastFromPartner = !!last && !!partner && last.senderId === partner.id;
 
   useEffect(() => {
     bottom.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages.length, typing, suggestOpen]);
+  }, [messages.length, typing]);
 
-  // 대화가 잠시 멈추면 '대화 이어가기' 제안
-  useEffect(() => {
-    if (!lastFromPartner || typing) return;
-    const t = window.setTimeout(() => setSuggestOpen(true), 4500);
-    return () => window.clearTimeout(t);
-  }, [lastFromPartner, typing, messages.length]);
 
   if (!me) return null;
   if (!conv || !partner) {
@@ -76,18 +66,10 @@ function Chat() {
   const country = COUNTRIES[partner.country];
   const photo = store.photoStatus(conv);
 
-  const followUps: Localized[] = [
-    ...(FOLLOW_UPS[conv.topicId] ?? []),
-    ...Object.entries(FOLLOW_UPS)
-      .filter(([k]) => k !== conv.topicId)
-      .flatMap(([, v]) => v),
-  ];
-  const suggestion = followUps[suggestIndex % followUps.length];
 
   const send = (value: string, kind: "text" | "question" = "text") => {
     store.sendMessage(conv.id, value, kind);
     setText("");
-    setSuggestOpen(false);
     setPhrasesOpen(false);
   };
   const local = (l: Localized) => l[me.nativeLanguage] ?? l.ko;
@@ -180,28 +162,6 @@ function Chat() {
 
         {typing && <TypingBubble name={partner.nickname} />}
 
-        {open && suggestOpen && !typing && (
-          <div className="animate-fade-up rounded-3xl bg-sun-soft p-4">
-            <p className="text-sm font-bold">💡 이야기를 계속해볼까요?</p>
-            <p className="mt-1 text-xs text-ink-soft">
-              {partner.nickname}은(는) {INTEREST_HINTS[conv.topicId] ?? "이야기"}를 좋아한다고 했어요.
-            </p>
-            <button
-              onClick={() => send(local(suggestion))}
-              className="mt-3 w-full rounded-2xl bg-paper px-4 py-3 text-left text-sm font-semibold hover:shadow-sm"
-            >
-              “{local(suggestion)}”
-            </button>
-            <div className="mt-2 flex justify-between">
-              <button onClick={() => setSuggestIndex((i) => i + 1)} className="text-xs font-semibold text-ink-soft">
-                ↻ 다른 질문
-              </button>
-              <button onClick={() => setSuggestOpen(false)} className="text-xs text-muted">
-                닫기
-              </button>
-            </div>
-          </div>
-        )}
 
         {showConnectPrompt && (
           <div className="animate-fade-up rounded-3xl border border-sun/50 bg-paper p-5 text-center">
@@ -238,7 +198,6 @@ function Chat() {
           </Banner>
         )}
 
-        {open && photo.started && <PhotoProgress status={photo} name={partner.nickname} onNextDay={() => store.advanceDay(conv.id)} />}
 
         {conv.status === "ENDED" && (
           <Banner>
@@ -273,14 +232,6 @@ function Chat() {
                 if (text.trim()) send(text);
               }}
             >
-              <button
-                type="button"
-                onClick={() => setSuggestOpen((v) => !v)}
-                aria-label="대화 이어가기 질문 보기"
-                className={cn("rounded-full p-2 text-lg", suggestOpen && "bg-sun-soft")}
-              >
-                💡
-              </button>
               <button
                 type="button"
                 onClick={() => setPhrasesOpen((v) => !v)}
@@ -385,54 +336,6 @@ function Chat() {
       </Modal>
 
       <BlockDialog user={partner} open={blockOpen} onClose={() => setBlockOpen(false)} />
-    </div>
-  );
-}
-
-function PhotoProgress({
-  status,
-  name,
-  onNextDay,
-}: {
-  status: ReturnType<ReturnType<typeof useStore>["photoStatus"]>;
-  name: string;
-  onNextDay: () => void;
-}) {
-  if (status.unlocked) {
-    return (
-      <Banner tone="love">
-        📷 {PHOTO_REVEAL_DAYS}일 동안 매일 대화해서 {name}의 사진이 공개됐어요.
-      </Banner>
-    );
-  }
-  const hoursLeft = Math.max(0, Math.ceil(status.hoursRequired - status.hoursElapsed));
-  return (
-    <div className="rounded-2xl border border-line bg-paper px-4 py-3">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-sm font-semibold">📷 사진 공개까지</p>
-        <p className="text-xs text-muted">{hoursLeft > 0 ? `${hoursLeft}시간 남음` : "시간 조건 완료"}</p>
-      </div>
-      <ol className="mt-2 grid grid-cols-3 gap-1.5" aria-label="매일 대화 진행">
-        {status.days.map((done, i) => (
-          <li
-            key={i}
-            className={cn(
-              "rounded-xl py-1.5 text-center text-xs",
-              done ? "bg-sea-soft font-semibold text-sea" : "bg-cream text-muted",
-            )}
-          >
-            {done ? "✓" : "○"} {i + 1}일차
-          </li>
-        ))}
-      </ol>
-      <p className="mt-2 text-[11px] leading-relaxed text-muted">
-        {status.broken
-          ? "하루라도 대화를 쉬면 사진이 공개되지 않아요. (데모에서는 대화를 새로 시작해 다시 확인할 수 있어요.)"
-          : `첫 채팅 후 ${status.hoursRequired}시간이 지나고, ${PHOTO_REVEAL_DAYS}일 동안 매일 서로 메시지를 주고받으면 사진이 공개돼요.`}
-      </p>
-      <button onClick={onNextDay} className="mt-2 text-[11px] font-semibold text-sea underline-offset-2 hover:underline">
-        🧪 데모: 하루 지난 것으로 만들기
-      </button>
     </div>
   );
 }

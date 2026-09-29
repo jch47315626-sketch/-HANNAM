@@ -2,12 +2,14 @@
 
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { CHAT_STYLES, COUNTRIES, LANGUAGES, REASONS } from "@/data/config";
+import { CHAT_STYLES, COUNTRIES, LANGUAGES, PHOTO_REVEAL_DAYS, REASONS } from "@/data/config";
 import { AppShell, TopBar } from "@/components/shell";
 import { InterestChips, LockedPhoto, PurposeBadge, VerificationBadges } from "@/components/profile";
 import { BlockDialog } from "@/components/safety";
 import { Button, ButtonLink, Card, EmptyState, SectionLabel } from "@/components/ui";
 import { useStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
+import type { PhotoRevealStatus } from "@/services/reveal";
 
 export default function ProfilePage() {
   return (
@@ -21,7 +23,7 @@ export default function ProfilePage() {
 
 function PublicProfile() {
   const params = useSearchParams();
-  const { me, getUser, conversationWith, isBlocked, unblock, canSeePhoto } = useStore();
+  const { me, getUser, conversationWith, isBlocked, unblock, canSeePhoto, photoStatus, advanceDay } = useStore();
   const [blockOpen, setBlockOpen] = useState(false);
   const user = getUser(params.get("id") ?? "");
 
@@ -46,6 +48,9 @@ function PublicProfile() {
       <TopBar title={`${user.nickname}의 프로필`} back={true} />
       <div className="space-y-4 px-5 py-5">
         <LockedPhoto user={user} revealed={photoVisible} />
+        {conv && !photoVisible && !blocked && (
+          <PhotoProgress status={photoStatus(conv)} onNextDay={() => advanceDay(conv.id)} />
+        )}
 
         <div className="text-center">
           <h1 className="text-2xl font-bold">
@@ -143,5 +148,38 @@ function PublicProfile() {
       </div>
       <BlockDialog user={user} open={blockOpen} onClose={() => setBlockOpen(false)} />
     </>
+  );
+}
+
+function PhotoProgress({ status, onNextDay }: { status: PhotoRevealStatus; onNextDay: () => void }) {
+  const hoursLeft = Math.max(0, Math.ceil(status.hoursRequired - status.hoursElapsed));
+  return (
+    <Card className="!p-4">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-sm font-semibold">📷 사진 공개까지</p>
+        <p className="text-xs text-muted">{hoursLeft > 0 ? `${hoursLeft}시간 남음` : "시간 조건 완료"}</p>
+      </div>
+      <ol className="mt-2 grid grid-cols-3 gap-1.5" aria-label="매일 대화 진행">
+        {status.days.map((done, i) => (
+          <li
+            key={i}
+            className={cn(
+              "rounded-xl py-1.5 text-center text-xs",
+              done ? "bg-sea-soft font-semibold text-sea" : "bg-cream text-muted",
+            )}
+          >
+            {done ? "✓" : "○"} {i + 1}일차
+          </li>
+        ))}
+      </ol>
+      <p className="mt-2 text-[11px] leading-relaxed text-muted">
+        {status.broken
+          ? "하루라도 대화를 쉬면 사진이 공개되지 않아요."
+          : `첫 채팅 후 ${status.hoursRequired}시간이 지나고, ${PHOTO_REVEAL_DAYS}일 동안 매일 서로 메시지를 주고받으면 사진이 공개돼요.`}
+      </p>
+      <button onClick={onNextDay} className="mt-2 text-[11px] font-semibold text-sea underline-offset-2 hover:underline">
+        🧪 데모: 하루 지난 것으로 만들기
+      </button>
+    </Card>
   );
 }
