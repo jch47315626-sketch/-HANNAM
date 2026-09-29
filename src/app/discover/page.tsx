@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { COUNTRIES, PURPOSES } from "@/data/config";
-import { getQuestion, getTopic } from "@/data/topics";
+import { getTopic } from "@/data/topics";
 import { AppShell, DailyCounter, TopBar } from "@/components/shell";
 import { Avatar, InterestChips, LanguageLine, PurposeBadge } from "@/components/profile";
 import { DailyLimitModal } from "@/components/safety";
@@ -29,9 +29,7 @@ function Discover() {
   const store = useStore();
   const { me, state, startConversation } = store;
   const topicId = params.get("topic") ?? undefined;
-  const questionId = params.get("q") ?? undefined;
   const topic = getTopic(topicId);
-  const question = getQuestion(questionId)?.question;
 
   const [phase, setPhase] = useState<Phase>("loading");
   const [attempt, setAttempt] = useState(0);
@@ -60,7 +58,7 @@ function Discover() {
 
   const start = () => {
     if (!rec || !topicId) return;
-    const result = startConversation(rec.user.id, topicId, questionId);
+    const result = startConversation(rec.user.id, topicId);
     if (result.ok) router.push(`/chat?id=${result.conversationId}`);
     else if (result.reason === "limit") setLimitOpen(true);
   };
@@ -69,7 +67,7 @@ function Discover() {
     <>
       <TopBar
         title={topic ? `${topic.icon} ${topic.name.ko}` : "대화 상대"}
-        back={topic ? `/topic?id=${topic.id}` : "/home"}
+        back="/home"
         right={<DailyCounter compact />}
       />
       <div className="flex flex-1 flex-col px-5 pb-6 pt-5">
@@ -164,12 +162,6 @@ function Discover() {
                 </ul>
               )}
 
-              {question && (
-                <div className="mt-4 rounded-2xl border border-dashed border-line p-3">
-                  <p className="text-xs text-muted">오늘의 질문</p>
-                  <p className="mt-0.5 font-semibold">“{question.text[me.nativeLanguage] ?? question.text.ko}”</p>
-                </div>
-              )}
 
               <p className="mt-4 text-center text-xs text-muted">🔒 사진은 첫 채팅 후 3일 동안 매일 대화하면 공개돼요</p>
             </article>

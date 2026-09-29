@@ -150,12 +150,3 @@ const byId = new Map(TOPICS.map((t) => [t.id, t]));
 export function getTopic(id: string | undefined | null): Topic | undefined {
   return id ? byId.get(id) : undefined;
 }
-
-export function getQuestion(questionId: string | undefined | null) {
-  if (!questionId) return undefined;
-  for (const t of TOPICS) {
-    const q = t.questions.find((x) => x.id === questionId);
-    if (q) return { topic: t, question: q };
-  }
-  return undefined;
-}

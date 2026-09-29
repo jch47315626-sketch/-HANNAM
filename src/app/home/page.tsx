@@ -44,7 +44,7 @@ function Home() {
         {main.map((t) => (
           <li key={t.id}>
             <Link
-              href={`/topic?id=${t.id}`}
+              href={`/discover?topic=${t.id}`}
               className="flex h-full flex-col rounded-3xl border border-line bg-paper p-4 transition hover:-translate-y-0.5 hover:border-sea/40 hover:shadow-sm"
             >
               <span className="text-3xl" aria-hidden>
@@ -58,7 +58,7 @@ function Home() {
       </ul>
 
       <Link
-        href={`/topic?id=${daily.id}`}
+        href={`/discover?topic=${daily.id}`}
         className="mt-3 flex items-center justify-center gap-2 rounded-3xl bg-sea px-4 py-4 font-bold text-white shadow-sm transition hover:brightness-95"
       >
         <span aria-hidden>💬</span> 아무 이야기나

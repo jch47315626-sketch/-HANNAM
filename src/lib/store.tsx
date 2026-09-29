@@ -139,11 +139,7 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         messages: [...state.messages, m],
-        conversations: updateConv(state, m.conversationId, (c) => ({
-          ...c,
-          lastMessageAt: m.createdAt,
-          pendingQuestionId: m.kind === "question" ? undefined : c.pendingQuestionId,
-        })),
+        conversations: updateConv(state, m.conversationId, (c) => ({ ...c, lastMessageAt: m.createdAt })),
       };
     }
     case "PARTNER_REPLY": {
@@ -316,7 +312,7 @@ interface Store {
   resetAll: () => void;
   updateProfile: (patch: Partial<UserProfile>) => void;
   completeOnboarding: () => void;
-  startConversation: (partnerId: string, topicId: string, questionId?: string) => StartResult;
+  startConversation: (partnerId: string, topicId: string) => StartResult;
   sendMessage: (conversationId: string, text: string, kind?: MessageKind) => void;
   setTranslation: (conversationId: string, enabled: boolean) => void;
   requestConnect: (conversationId: string) => void;
@@ -518,7 +514,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       updateProfile: (patch) => dispatch({ type: "UPDATE_PROFILE", patch }),
       completeOnboarding: () => dispatch({ type: "COMPLETE_ONBOARDING" }),
 
-      startConversation: (partnerId, topicId, questionId) => {
+      startConversation: (partnerId, topicId) => {
         if (!me) return { ok: false, reason: "no-user" };
         if (blockedIds.has(partnerId)) return { ok: false, reason: "blocked" };
         const existing = conversationWith(partnerId);
@@ -530,7 +526,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           id: uid("conv"),
           memberIds: [me.id, partnerId],
           topicId,
-          questionId,
           status: "ACTIVE",
           startedAt: now,
           lastMessageAt: now,
@@ -539,7 +534,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             [me.id]: { translationEnabled: state.demo.defaultTranslation, learningMode: false },
             [partnerId]: { translationEnabled: true, learningMode: false },
           },
-          pendingQuestionId: questionId,
           scriptCursor: 0,
         };
         dispatch({ type: "START_CONVERSATION", conversation, countUsage: true });

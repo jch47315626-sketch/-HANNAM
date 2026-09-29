@@ -6,7 +6,6 @@ import WelcomePage from "@/app/page";
 import DemoPage from "@/app/demo/page";
 import OnboardingPage from "@/app/onboarding/page";
 import HomePage from "@/app/home/page";
-import TopicPage from "@/app/topic/page";
 import DiscoverPage from "@/app/discover/page";
 import ChatPage from "@/app/chat/page";
 import ConversationsPage from "@/app/conversations/page";
@@ -22,7 +21,6 @@ const ROUTES: Record<string, React.ComponentType> = {
   "/demo": DemoPage,
   "/onboarding": OnboardingPage,
   "/home": HomePage,
-  "/topic": TopicPage,
   "/discover": DiscoverPage,
   "/chat": ChatPage,
   "/conversations": ConversationsPage,

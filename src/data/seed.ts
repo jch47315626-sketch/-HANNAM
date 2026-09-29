@@ -68,7 +68,7 @@ export function buildSeed(me: UserProfile, defaultTranslation: boolean) {
       });
     };
 
-    push(me.id, question.text, me.nativeLanguage, "question");
+    push(me.id, question.text, me.nativeLanguage);
     const script = REPLY_SCRIPTS[plan.topicId]?.[partner.country] ?? [];
     for (let i = 0; i < plan.replies && i < script.length; i++) {
       push(partner.id, script[i], partner.nativeLanguage);

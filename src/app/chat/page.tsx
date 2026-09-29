@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { COUNTRIES } from "@/data/config";
 import { QUICK_PHRASES } from "@/data/scripts";
-import { getQuestion, getTopic } from "@/data/topics";
+import { getTopic } from "@/data/topics";
 import { AppShell } from "@/components/shell";
 import { Banner, MessageBubble, TypingBubble } from "@/components/chat";
 import { Avatar, PurposeBadge } from "@/components/profile";
@@ -55,7 +55,6 @@ function Chat() {
   }
 
   const topic = getTopic(conv.topicId);
-  const pendingQuestion = getQuestion(conv.pendingQuestionId)?.question;
   const mySettings = conv.memberSettings[me.id] ?? { translationEnabled: true, learningMode: false };
   const open = conv.status === "ACTIVE" || conv.status === "CONNECTED";
   const connected = conv.status === "CONNECTED";
@@ -66,8 +65,8 @@ function Chat() {
   const photo = store.photoStatus(conv);
 
 
-  const send = (value: string, kind: "text" | "question" = "text") => {
-    store.sendMessage(conv.id, value, kind);
+  const send = (value: string) => {
+    store.sendMessage(conv.id, value);
     setText("");
     setPhrasesOpen(false);
   };
@@ -148,15 +147,10 @@ function Chat() {
           />
         ))}
 
-        {pendingQuestion && open && messages.length === 0 && (
-          <div className="animate-fade-up rounded-3xl border border-sea/30 bg-paper p-5 text-center">
-            <p className="text-xs font-semibold text-sea">오늘의 질문</p>
-            <p className="mt-2 text-lg font-bold">“{local(pendingQuestion.text)}”</p>
-            <p className="mt-1 text-xs text-muted">{partner.nickname}에게는 {country.flag} 번역되어 전달돼요.</p>
-            <Button block className="mt-4" onClick={() => send(local(pendingQuestion.text), "question")}>
-              질문 보내기
-            </Button>
-          </div>
+        {open && messages.length === 0 && (
+          <p className="py-6 text-center text-sm text-muted">
+            👋 {partner.nickname}에게 먼저 인사해보세요.
+          </p>
         )}
 
         {typing && <TypingBubble name={partner.nickname} />}

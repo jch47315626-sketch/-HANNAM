@@ -99,8 +99,6 @@ export interface Conversation {
   endedAt?: string;
   connect: Record<string, boolean>;
   memberSettings: Record<string, ConversationMemberSettings>;
-  /** 오늘의 질문을 아직 보내지 않은 상태 */
-  pendingQuestionId?: string;
   connectPromptDismissed?: boolean;
   /** 데모 전용: 주고받은 메시지 수에 더해 계산할 가상 메시지 수 */
   demoExtraMessages?: number;
@@ -108,7 +106,7 @@ export interface Conversation {
   scriptCursor: number;
 }
 
-export type MessageKind = "text" | "question" | "system";
+export type MessageKind = "text" | "system";
 
 export interface Message {
   id: string;

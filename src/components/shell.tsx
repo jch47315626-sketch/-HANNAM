@@ -63,7 +63,7 @@ export function BottomNav() {
     >
       <ul className="grid grid-cols-4">
         {NAV.map((item) => {
-          const active = pathname === item.href || (item.href === "/home" && pathname.startsWith("/topic"));
+          const active = pathname === item.href || (item.href === "/home" && pathname.startsWith("/discover"));
           return (
             <li key={item.href}>
               <Link

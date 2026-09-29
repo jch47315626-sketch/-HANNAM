@@ -53,7 +53,6 @@ export function MessageBubble({
         <div className="flex max-w-[85%] items-end gap-1.5">
           {time}
           <div className="rounded-3xl rounded-br-md bg-sea px-4 py-2.5 text-white">
-            {message.kind === "question" && <p className="mb-0.5 text-[11px] text-white/75">오늘의 질문</p>}
             <p className="whitespace-pre-wrap break-words" lang={message.originalLanguage}>
               {message.originalText}
             </p>

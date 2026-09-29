@@ -38,7 +38,7 @@ function Conversations() {
   const preview = (c: Conversation) => {
     const msgs = messagesOf(c.id).filter((m) => m.kind !== "system");
     const last = msgs[msgs.length - 1];
-    if (!last) return "아직 메시지가 없어요. 오늘의 질문을 보내보세요!";
+    if (!last) return "아직 메시지가 없어요. 먼저 인사해보세요!";
     if (last.senderId === me?.id) return `나: ${last.originalText}`;
     const translated =
       me && c.memberSettings[me.id]?.translationEnabled

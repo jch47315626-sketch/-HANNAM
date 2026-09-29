@@ -27,14 +27,12 @@ test.afterEach(async ({ page }) => {
   expect(errors, "콘솔 오류 없음").toEqual([]);
 });
 
-test("Happy path: 주제 → 질문 → 추천 → 채팅 → 번역 → Connect → 사진 공개", async ({ page }) => {
+test("Happy path: 주제 → 추천 → 채팅 → 번역 → Connect → 사진 공개", async ({ page }) => {
   await startAs(page, /민준/);
   await expect(page.getByText("0 / 10").first()).toBeVisible();
 
-  // 주제 & 질문
+  // 주제 → 바로 추천 (추천 질문 없음)
   await page.getByRole("link", { name: /여행/ }).first().click();
-  await expect(page.getByText("어떤 질문으로 시작할까요?")).toBeVisible();
-  await page.getByRole("button", { name: "이 질문으로 대화 상대 찾기" }).click();
 
   // 추천: 사진 잠금, Yuki 추천
   await expect(page.getByText("이야기가 잘 맞을 사람을")).toBeVisible();
@@ -42,8 +40,10 @@ test("Happy path: 주제 → 질문 → 추천 → 채팅 → 번역 → Connect
   await expect(page.getByRole("img", { name: "Yuki의 사진 (잠김)" })).toBeVisible();
   await page.getByRole("button", { name: "이 사람과 이야기하기" }).click();
 
-  // 채팅: 오늘의 질문 보내기
-  await page.getByRole("button", { name: "질문 보내기" }).click();
+  // 채팅: 추천 질문 없이 빈 방에서 시작
+  await expect(page.getByText("오늘의 질문")).toHaveCount(0);
+  await page.getByRole("button", { name: "준비된 문장" }).click();
+  await page.getByRole("button", { name: "안녕하세요! 반가워요 😊" }).click();
   // 번역 ON: 번역만 보이고 일본어 원문은 숨김
   await expect(page.getByText("서울의 경복궁에 가보고 싶어요! 한복도 입어보고 싶어요.")).toBeVisible();
   await expect(page.getByText("ソウルの景福宮に行ってみたいです！韓服も着てみたいです。")).toBeHidden();
@@ -57,7 +57,7 @@ test("Happy path: 주제 → 질문 → 추천 → 채팅 → 번역 → Connect
   await page.getByRole("button", { name: "🌐 번역 보기" }).first().click();
   await expect(page.getByText("서울의 경복궁에 가보고 싶어요! 한복도 입어보고 싶어요.")).toBeVisible();
 
-  // 질문 추천은 입장 시 한 번만: 이어가기 제안은 나오지 않음
+  // 이어가기 제안도 나오지 않음
   await page.getByRole("button", { name: "준비된 문장" }).click();
   await page.getByRole("button", { name: "저도 정말 좋아해요!" }).click();
   await expect(page.getByText("去年、釜山に行きました。海がとてもきれいでした！")).toBeVisible();
@@ -137,14 +137,12 @@ test("제한: 9/10 → 10/10 → Daily Limit → Premium", async ({ page }) => {
   await startAs(page, /민준/);
   await page.goto("/settings");
   await page.getByRole("button", { name: "9/10" }).click();
-  await page.goto("/topic?id=food");
-  await page.getByRole("button", { name: "이 질문으로 대화 상대 찾기" }).click();
+  await page.goto("/discover?topic=food");
   await page.getByRole("button", { name: "이 사람과 이야기하기" }).click();
-  await expect(page.getByRole("button", { name: "질문 보내기" })).toBeVisible();
+  await expect(page.getByText("먼저 인사해보세요")).toBeVisible();
 
-  await page.goto("/topic?id=music");
+  await page.goto("/discover?topic=music");
   await expect(page.getByText("10 / 10")).toBeVisible();
-  await page.getByRole("button", { name: "이 질문으로 대화 상대 찾기" }).click();
   await page.getByRole("button", { name: "이 사람과 이야기하기" }).click();
   await expect(page.getByText("오늘의 새로운 대화가 모두 사용됐어요.")).toBeVisible();
   await page.getByRole("button", { name: "더 많은 대화 알아보기" }).click();
@@ -165,9 +163,9 @@ test("차단한 상대와는 다시 대화할 수 없음", async ({ page }) => {
 test("일본 사용자(Yuki)로 시작: 한국어 메시지가 일본어로 번역", async ({ page }) => {
   await startAs(page, /Yuki/);
   await page.getByRole("link", { name: /음식 & 카페/ }).click();
-  await page.getByRole("button", { name: "이 질문으로 대화 상대 찾기" }).click();
   await page.getByRole("button", { name: "이 사람과 이야기하기" }).click();
-  await page.getByRole("button", { name: "질문 보내기" }).click();
+  await page.getByRole("button", { name: "준비된 문장" }).click();
+  await page.getByRole("button", { name: "こんにちは！よろしくお願いします😊" }).click();
   await expect(page.getByText("僕はラーメンが本当に好きです！日本に行ったら一番に食べたいです。")).toBeVisible();
   await expect(page.getByText("저는 라멘을 정말 좋아해요! 일본에 가면 제일 먼저 먹고 싶어요.")).toBeHidden();
 });
