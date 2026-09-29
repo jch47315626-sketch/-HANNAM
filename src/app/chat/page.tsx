@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { CONNECT_MESSAGE_THRESHOLD, COUNTRIES } from "@/data/config";
+import { COUNTRIES } from "@/data/config";
 import { QUICK_PHRASES } from "@/data/scripts";
 import { getQuestion, getTopic } from "@/data/topics";
 import { AppShell } from "@/components/shell";
@@ -60,8 +60,7 @@ function Chat() {
   const open = conv.status === "ACTIVE" || conv.status === "CONNECTED";
   const connected = conv.status === "CONNECTED";
   const iConnected = !!conv.connect[me.id];
-  const chatCount = messages.filter((m) => m.kind !== "system").length;
-  const connectReady = chatCount >= CONNECT_MESSAGE_THRESHOLD;
+  const connectReady = store.connectReady(conv);
   const showConnectPrompt = open && !connected && !iConnected && connectReady && !conv.connectPromptDismissed;
   const country = COUNTRIES[partner.country];
   const photo = store.photoStatus(conv);
@@ -264,11 +263,6 @@ function Chat() {
               <button onClick={() => store.requestConnect(conv.id)} className="mt-2 w-full text-center text-xs font-semibold text-brand">
                 💛 Connect 보내기
               </button>
-            )}
-            {!connectReady && !connected && (
-              <p className="mt-1.5 text-center text-[11px] text-muted">
-                메시지를 {CONNECT_MESSAGE_THRESHOLD - chatCount}개 더 나누면 Connect할 수 있어요.
-              </p>
             )}
           </>
         ) : (

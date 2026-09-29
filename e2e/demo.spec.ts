@@ -70,7 +70,12 @@ test("Happy path: 주제 → 질문 → 추천 → 채팅 → 번역 → Connect
   await page.getByRole("button", { name: "우와, 재미있네요!" }).click();
   await expect(page.getByText("私は海派です！夏になると海に行きたくなります。")).toBeVisible();
 
-  // Connect
+  // Connect: 메시지 100개 전에는 제안도, 남은 개수 안내도 없음
+  await expect(page.getByText(/더 이야기하고 싶나요/)).toHaveCount(0);
+  await expect(page.getByText(/개 더 나누면/)).toHaveCount(0);
+  await page.getByRole("link", { name: /Yuki · 28/ }).click();
+  await page.getByRole("button", { name: /메시지 100개를 주고받은 것으로/ }).click();
+  await page.goBack();
   await expect(page.getByText(/더 이야기하고 싶나요/)).toBeVisible();
   await page.getByRole("button", { name: "Connect", exact: true }).click();
   await expect(page.getByText(/Connect를 보냈어요/)).toBeVisible();

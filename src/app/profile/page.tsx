@@ -23,7 +23,7 @@ export default function ProfilePage() {
 
 function PublicProfile() {
   const params = useSearchParams();
-  const { me, getUser, conversationWith, isBlocked, unblock, canSeePhoto, photoStatus, advanceDay } = useStore();
+  const { me, getUser, conversationWith, isBlocked, unblock, canSeePhoto, photoStatus, advanceDay, connectReady, fillMessagesForDemo } = useStore();
   const [blockOpen, setBlockOpen] = useState(false);
   const user = getUser(params.get("id") ?? "");
 
@@ -50,6 +50,14 @@ function PublicProfile() {
         <LockedPhoto user={user} revealed={photoVisible} />
         {conv && !photoVisible && !blocked && (
           <PhotoProgress status={photoStatus(conv)} onNextDay={() => advanceDay(conv.id)} />
+        )}
+        {conv && !blocked && conv.status === "ACTIVE" && !connectReady(conv) && (
+          <button
+            onClick={() => fillMessagesForDemo(conv.id)}
+            className="block w-full text-center text-[11px] font-semibold text-sea underline-offset-2 hover:underline"
+          >
+            🧪 데모: 메시지 100개를 주고받은 것으로 만들기 (Connect 가능)
+          </button>
         )}
 
         <div className="text-center">

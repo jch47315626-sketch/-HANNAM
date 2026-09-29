@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from "react";
 import {
+  CONNECT_MESSAGE_THRESHOLD,
   COUNTRY_PAIR,
   DAILY_NEW_CHAT_LIMIT,
   REPORT_LIMIT_PER_DAY,
@@ -95,7 +96,8 @@ type Action =
   | { type: "SET_USAGE"; usage: DailyUsage }
   | { type: "SET_DEMO"; patch: Partial<DemoSettings> }
   | { type: "CLEAR_CELEBRATE" }
-  | { type: "SHIFT_TIME"; conversationId: string; ms: number };
+  | { type: "SHIFT_TIME"; conversationId: string; ms: number }
+  | { type: "DEMO_FILL_MESSAGES"; conversationId: string; count: number };
 
 function updateConv(state: State, id: string, fn: (c: Conversation) => Conversation): Conversation[] {
   return state.conversations.map((c) => (c.id === id ? fn(c) : c));
@@ -256,6 +258,11 @@ function reducer(state: State, action: Action): State {
       return { ...state, demo: { ...state.demo, ...action.patch } };
     case "CLEAR_CELEBRATE":
       return { ...state, celebrate: null };
+    case "DEMO_FILL_MESSAGES":
+      return {
+        ...state,
+        conversations: updateConv(state, action.conversationId, (c) => ({ ...c, demoExtraMessages: action.count })),
+      };
     case "SHIFT_TIME": {
       const back = (iso: string) => new Date(new Date(iso).getTime() - action.ms).toISOString();
       return {
@@ -323,6 +330,10 @@ interface Store {
   clearCelebrate: () => void;
   /** 데모: 대화 기록을 하루 전으로 옮겨 '다음 날'을 흉내낸다 */
   advanceDay: (conversationId: string) => void;
+  /** 데모: Connect 조건(메시지 수)을 채운 것으로 만든다 */
+  fillMessagesForDemo: (conversationId: string) => void;
+  /** Connect 조건을 채웠는지 */
+  connectReady: (c: Conversation) => boolean;
 }
 
 const StoreContext = createContext<Store | null>(null);
@@ -615,6 +626,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       },
       clearCelebrate: () => dispatch({ type: "CLEAR_CELEBRATE" }),
       advanceDay: (conversationId) => dispatch({ type: "SHIFT_TIME", conversationId, ms: 86_400_000 }),
+      fillMessagesForDemo: (conversationId) =>
+        dispatch({ type: "DEMO_FILL_MESSAGES", conversationId, count: CONNECT_MESSAGE_THRESHOLD }),
+      connectReady: (c) =>
+        state.messages.filter((m) => m.conversationId === c.id && m.kind !== "system").length +
+          (c.demoExtraMessages ?? 0) >=
+        CONNECT_MESSAGE_THRESHOLD,
     };
   }, [state, me, getUser, usedToday, blockedIds, reportQuota, later, scheduleConnectResponse]);
 
