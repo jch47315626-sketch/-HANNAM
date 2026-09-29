@@ -4,7 +4,9 @@ import { useRouterState } from "./router";
 
 type Props = React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string; replace?: boolean; prefetch?: boolean };
 
-export default function Link({ href, replace, prefetch: _prefetch, onClick, children, ...rest }: Props) {
+export default function Link({ href, replace, onClick, children, ...props }: Props) {
+  const { prefetch, ...rest } = props;
+  void prefetch;
   const router = useRouterState();
   return (
     <a
