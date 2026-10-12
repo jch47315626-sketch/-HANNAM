@@ -4,298 +4,158 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pocket Farm</title>
-<meta name="description" content="기계도, 씨앗도 합리적으로. 가격 거품 80%를 걷어낸 가정용 스마트팜 포켓팜.">
+<meta name="description" content="가격 거품을 뺀 가정용 스마트팜, 포켓팜.">
 <link rel="icon" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Jua&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Fredoka:wght@600&display=swap">
 <style>
-/* Layout: one dark "night greenhouse" column. Brand glow is spent only on the hero mark, the price cut and the CTA. */
+/* Layout: black product page. One statement per screen, hairlines instead of boxes, green only where light is emitted. */
 :root {
-  --night: #0A0C0A;       /* page ground, from the logo */
-  --soil: #121611;        /* raised surfaces */
-  --line: #252C24;        /* hairlines */
-  --cream: #F2EFE3;       /* pocket stitch / primary text */
-  --mute: #A3AA9F;        /* secondary text */
-  --sprout: #5BE33A;      /* brand green */
-  --sprout-hi: #B4F24C;   /* leaf highlight */
-  --sprout-ink: #0B1A06;  /* text on green */
-  --warn: #F2A65A;        /* old-price figures */
-  --f-display: "Jua", "IBM Plex Sans KR", system-ui, sans-serif;
-  --f-word: "Fredoka", "Jua", system-ui, sans-serif;
-  --f-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
-  --f-data: "IBM Plex Mono", ui-monospace, Menlo, monospace;
-  --s-hero: clamp(2.3rem, 6.4vw, 4.4rem);
-  --s-h2: clamp(1.75rem, 4vw, 2.6rem);
-  --s-h3: 1.25rem;
-  --s-body: 1.0625rem;
-  --s-small: 0.875rem;
-  --radius: 22px;
-  --wrap: 1120px;
+  --bg: #050605;
+  --fg: #F2EFE3;
+  --dim: #868B82;
+  --hair: #1E221D;
+  --green: #5BE33A;
+  --ink: #071204;
+  --f: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --f-word: "Fredoka", "Noto Sans KR", system-ui, sans-serif;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
-  margin: 0;
-  background: var(--night);
-  color: var(--cream);
-  font-family: var(--f-body);
-  font-size: var(--s-body);
-  line-height: 1.7;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 400 1rem/1.6 var(--f); letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden;
 }
 img { max-width: 100%; display: block; }
-a { color: inherit; }
-:focus-visible { outline: 2px solid var(--sprout-hi); outline-offset: 3px; border-radius: 6px; }
-.wrap { max-width: var(--wrap); margin-inline: auto; padding-inline: 20px; }
-h1, h2, h3 { font-family: var(--f-display); font-weight: 400; line-height: 1.25; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
-h2 { font-size: var(--s-h2); }
-h3 { font-size: var(--s-h3); }
-p { margin: 0; }
-.eyebrow {
-  font-family: var(--f-data); font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--sprout);
-}
-.lead { color: var(--mute); max-width: 36em; }
-.g { color: var(--sprout); }
-section { padding-block: clamp(72px, 11vw, 128px); border-top: 1px solid var(--line); }
-.sec-head { display: grid; gap: 14px; margin-bottom: clamp(36px, 6vw, 56px); max-width: 44rem; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid var(--green); outline-offset: 4px; border-radius: 4px; }
+h1, h2, p { margin: 0; }
+h1, h2 { font-weight: 700; letter-spacing: -0.045em; line-height: 1.12; text-wrap: balance; }
+h2 { font-size: clamp(2rem, 5.2vw, 3.75rem); }
+.wrap { max-width: 1160px; margin-inline: auto; padding-inline: 24px; }
+.dim { color: var(--dim); }
+.g { color: var(--green); }
+section { padding-block: clamp(96px, 16vw, 200px); }
 
-/* ---------- nav ---------- */
-.nav {
-  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
-  background: color-mix(in srgb, var(--night) 82%, transparent);
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--line);
-}
-.nav .wrap { display: flex; align-items: center; gap: 24px; height: 64px; }
-.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-.brand img { height: 34px; width: auto; }
-.wordmark { font-family: var(--f-word); font-weight: 600; font-size: 1.3rem; letter-spacing: -0.01em; }
-.nav-links { display: flex; gap: 22px; margin-left: auto; font-size: 0.95rem; }
-.nav-links a { text-decoration: none; color: var(--mute); }
-.nav-links a:hover { color: var(--cream); }
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  font: 600 0.98rem/1 var(--f-body); text-decoration: none; cursor: pointer;
-  padding: 14px 22px; border-radius: 999px; border: 1px solid transparent;
-  transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
-}
-.btn-glow { background: var(--sprout); color: var(--sprout-ink); box-shadow: 0 0 0 0 transparent; }
-.btn-glow:hover { box-shadow: 0 0 28px color-mix(in srgb, var(--sprout) 55%, transparent); transform: translateY(-1px); }
-.btn-line { border-color: var(--line); color: var(--cream); background: transparent; }
-.btn-line:hover { border-color: var(--mute); }
-.nav .btn { padding: 10px 16px; font-size: 0.9rem; }
+/* nav */
+.nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+.nav .wrap { display: flex; align-items: center; height: 60px; gap: 32px; }
+.brand { display: flex; align-items: center; gap: 9px; font: 600 1.15rem var(--f-word); letter-spacing: 0; }
+.brand img { height: 26px; width: auto; }
+.links { display: flex; gap: 28px; margin-left: auto; font-size: 0.875rem; color: var(--dim); }
+.links a:hover { color: var(--fg); }
+.btn { display: inline-flex; align-items: center; height: 44px; padding-inline: 22px; border-radius: 999px; font: 500 0.9375rem var(--f); border: 0; cursor: pointer; transition: opacity .2s; }
+.btn:hover { opacity: .85; }
+.btn-g { background: var(--green); color: var(--ink); }
+.btn-o { color: var(--fg); box-shadow: inset 0 0 0 1px #3A4038; }
+.nav .btn { height: 34px; padding-inline: 14px; font-size: 0.8125rem; }
 
-/* ---------- hero ---------- */
-.hero { border-top: 0; padding-block: clamp(48px, 8vw, 96px) clamp(64px, 9vw, 112px); position: relative; overflow: hidden; }
-.hero::before {
-  content: ""; position: absolute; inset: auto 0 -30% 50%; width: 70vw; max-width: 900px; aspect-ratio: 1;
-  transform: translateX(-30%);
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--sprout) 22%, transparent), transparent 70%);
-  pointer-events: none;
-}
-.hero .wrap { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 48px; align-items: center; position: relative; }
-.hero h1 { font-size: var(--s-hero); }
-.hero .copy { display: grid; gap: 24px; min-width: 0; }
-.hero .lead { font-size: 1.15rem; }
-.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; }
-.hero-logo { justify-self: center; width: min(100%, 420px); }
-.hero-logo img { width: 100%; height: auto; border-radius: 28px; }
-.stitch {
-  display: flex; flex-wrap: wrap; gap: 10px 28px; padding-top: 22px; margin-top: 4px;
-  border-top: 2px dashed color-mix(in srgb, var(--cream) 35%, transparent);
-  font-size: var(--s-small); color: var(--mute);
-}
-.stitch b { font-family: var(--f-data); font-weight: 500; color: var(--cream); font-size: 1rem; display: block; }
+/* hero */
+.hero { padding-block: clamp(56px, 9vw, 112px) 0; text-align: center; }
+.hero h1 { font-size: clamp(2.75rem, 8.4vw, 6.5rem); font-weight: 900; letter-spacing: -0.055em; }
+.hero p { margin-top: 20px; font-size: clamp(1.05rem, 2vw, 1.3rem); color: var(--dim); }
+.hero .cta { margin-top: 36px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.hero-art { position: relative; margin: clamp(48px, 8vw, 96px) auto 0; width: min(100%, 520px); }
+.hero-art::before { content: ""; position: absolute; inset: 10% 5% 0; background: radial-gradient(closest-side, color-mix(in srgb, var(--green) 28%, transparent), transparent); filter: blur(30px); }
+.hero-art img { position: relative; width: 100%; height: auto; mask: radial-gradient(closest-side, #000 72%, transparent); -webkit-mask: radial-gradient(closest-side, #000 72%, transparent); }
 
-/* ---------- problem: receipt ---------- */
-.problem .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 6vw, 72px); align-items: start; }
-.problem .sec-head { margin-bottom: 0; }
-.pain { display: grid; gap: 22px; margin-top: 32px; }
-.pain div { display: grid; gap: 4px; padding-left: 18px; border-left: 2px solid var(--line); }
-.pain p { color: var(--mute); }
-.receipt {
-  background: var(--cream); color: #1B1E19; font-family: var(--f-data); font-size: 0.92rem;
-  padding: 28px 26px 34px; border-radius: 6px; transform: rotate(1.2deg);
-  max-width: 400px; justify-self: center; width: 100%;
-  -webkit-mask: radial-gradient(circle 7px at 10px 100%, transparent 98%, #000) 0 0/20px 100% repeat-x;
-          mask: radial-gradient(circle 7px at 10px 100%, transparent 98%, #000) 0 0/20px 100% repeat-x;
-}
-.receipt h3 { font-family: var(--f-data); font-size: 0.95rem; text-align: center; letter-spacing: 0.1em; }
-.receipt .meta { text-align: center; font-size: 0.78rem; color: #6A6E66; margin: 4px 0 16px; }
-.receipt .row { display: flex; justify-content: space-between; gap: 12px; padding-block: 6px; font-variant-numeric: tabular-nums; }
-.receipt .row span:first-child { min-width: 0; }
-.receipt hr { border: 0; border-top: 1px dashed #9EA197; margin: 10px 0; }
-.receipt .total { font-size: 1.05rem; font-weight: 500; }
-.receipt .stamp {
-  margin-top: 18px; text-align: center; font-family: var(--f-display); font-size: 1.1rem; color: #B5421F;
-  border: 2px solid #B5421F; border-radius: 8px; padding: 6px; transform: rotate(-3deg);
-}
+/* price */
+.price .wrap { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: end; }
+.big { font-size: clamp(7rem, 22vw, 15rem); font-weight: 900; letter-spacing: -0.07em; line-height: .85; color: var(--green); }
+.price h2 { margin-top: 28px; }
+.ledger { display: grid; border-top: 1px solid var(--hair); }
+.ledger div { display: flex; justify-content: space-between; gap: 16px; padding-block: 18px; border-bottom: 1px solid var(--hair); font-variant-numeric: tabular-nums; }
+.ledger s { color: var(--dim); text-decoration-color: var(--green); text-decoration-thickness: 2px; }
+.ledger .us { color: var(--fg); }
 
-/* ---------- solution ---------- */
-.three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.card { background: var(--soil); border: 1px solid var(--line); border-radius: var(--radius); padding: 28px; display: grid; gap: 12px; align-content: start; }
-.card .ic { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--sprout) 14%, transparent); color: var(--sprout); }
-.card p { color: var(--mute); }
-.cut {
-  margin-top: 40px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 20px;
-  font-family: var(--f-display);
-}
-.cut .big { font-size: clamp(3.4rem, 10vw, 6rem); line-height: 1; color: var(--sprout); text-shadow: 0 0 36px color-mix(in srgb, var(--sprout) 45%, transparent); }
-.cut p { font-family: var(--f-body); color: var(--mute); max-width: 26em; }
+/* three */
+.three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: clamp(56px, 8vw, 88px); }
+.three div { border-top: 1px solid var(--hair); padding-top: 24px; display: grid; gap: 8px; }
+.three b { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.03em; }
 
-/* ---------- build / modules ---------- */
-.build .wrap { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: clamp(32px, 6vw, 72px); align-items: center; }
-.build .copy { display: grid; gap: 22px; min-width: 0; }
-.specs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
-.specs div { padding: 16px; border-right: 1px solid var(--line); }
-.specs div:last-child { border-right: 0; }
-.specs b { display: block; font-family: var(--f-data); font-weight: 500; font-size: 1.25rem; color: var(--cream); }
-.specs span { font-size: 0.8rem; color: var(--mute); }
-.ticks { display: grid; gap: 10px; padding: 0; margin: 0; list-style: none; color: var(--mute); }
-.ticks li { display: flex; gap: 10px; }
-.ticks li::before { content: ""; flex: none; width: 8px; height: 8px; margin-top: 0.7em; border-radius: 50%; background: var(--sprout); }
-.stage {
-  background: var(--soil); border: 1px solid var(--line); border-radius: var(--radius);
-  padding: 24px; display: grid; gap: 18px; min-width: 0;
-}
-.tiers { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--night); border: 1px solid var(--line); justify-self: start; }
-.tiers button {
-  font: 500 0.92rem var(--f-body); color: var(--mute); background: transparent; border: 0;
-  padding: 8px 16px; border-radius: 999px; cursor: pointer;
-}
-.tiers button[aria-pressed="true"] { background: var(--sprout); color: var(--sprout-ink); }
-.rack { display: flex; justify-content: center; }
-.rack svg { width: 100%; max-width: 360px; height: auto; overflow: visible; }
-.tier { transition: opacity .35s ease, transform .35s ease; }
-.tier.off { opacity: 0.08; }
-.stage .note { font-size: var(--s-small); color: var(--mute); text-align: center; }
-
-/* ---------- app ---------- */
-.app .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 6vw, 80px); align-items: center; }
-.app .copy { display: grid; gap: 22px; min-width: 0; }
-.feat { display: grid; gap: 18px; }
-.feat div { display: grid; grid-template-columns: 40px 1fr; gap: 14px; align-items: start; }
-.feat .ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; border: 1px solid var(--line); color: var(--sprout); }
-.feat p { color: var(--mute); font-size: 0.97rem; }
-.phone {
-  justify-self: center; width: min(100%, 330px); border-radius: 44px; padding: 12px;
-  background: #1A1D19; border: 1px solid #333A31;
-  box-shadow: 0 30px 80px -20px #000, 0 0 60px -20px color-mix(in srgb, var(--sprout) 40%, transparent);
-}
-.screen { background: #F8FAF7; color: #26332A; border-radius: 34px; overflow: hidden; font-size: 0.82rem; line-height: 1.45; }
-.screen .bar { display: flex; justify-content: space-between; align-items: center; padding: 18px 18px 12px; background: #fff; }
-.screen .bar b { font-family: var(--f-word); font-weight: 600; font-size: 1rem; }
-.screen .bar b i { font-style: normal; color: #2FA51C; }
-.screen .plant { display: grid; justify-items: center; gap: 6px; padding: 18px 16px 14px; text-align: center; }
-.screen .pot { width: 92px; height: 92px; border-radius: 50%; background: #fff; border: 4px solid #DDF7D4; display: grid; place-items: center; }
-.screen .ok { font-size: 0.72rem; font-weight: 600; color: #1D6B12; background: #fff; border: 1px solid #E6EBE4; border-radius: 999px; padding: 2px 10px; margin-top: -14px; }
-.screen h4 { margin: 6px 0 0; font-family: var(--f-display); font-weight: 400; font-size: 1.05rem; }
-.screen .sub { color: #6B7768; }
-.sensors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 14px 12px; }
-.sensors div { background: #fff; border: 1px solid #ECEFEA; border-radius: 14px; padding: 10px 4px; text-align: center; }
-.sensors b { display: block; font-family: var(--f-data); font-weight: 500; font-size: 0.82rem; }
-.sensors span { font-size: 0.66rem; color: #6B7768; }
-.controls { display: grid; gap: 6px; padding: 0 14px 12px; }
-.ctl { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid #ECEFEA; border-radius: 14px; padding: 9px 12px; }
-.ctl small { color: #6B7768; display: block; font-size: 0.68rem; }
-.sw { width: 38px; height: 22px; border-radius: 999px; background: #CBD3C8; position: relative; border: 0; cursor: pointer; flex: none; transition: background .2s; }
-.sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .2s; }
-.sw[aria-checked="true"] { background: #3CC925; }
+/* app */
+.app .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+.app p.dim { margin-top: 20px; font-size: 1.125rem; }
+.readout { display: flex; gap: 36px; margin-top: 48px; flex-wrap: wrap; }
+.readout b { display: block; font-size: 2rem; font-weight: 300; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.readout span { font-size: 0.8125rem; color: var(--dim); }
+.phone { justify-self: center; width: min(100%, 300px); padding: 10px; border-radius: 46px; background: #121411; box-shadow: inset 0 0 0 1px #2A2E28, 0 40px 120px -40px color-mix(in srgb, var(--green) 35%, transparent); }
+.screen { border-radius: 37px; background: #F7F8F5; color: #1C231D; padding: 22px 16px 18px; display: grid; gap: 14px; font-size: 0.8rem; }
+.screen .top { display: flex; justify-content: space-between; font: 600 .95rem var(--f-word); }
+.screen .top i { font-style: normal; color: #2EA61B; }
+.screen .plant { text-align: center; padding-block: 8px 4px; }
+.screen .plant img { width: 64px; margin: 0 auto 10px; border-radius: 18px; }
+.screen .plant b { display: block; font-size: 1rem; letter-spacing: -0.03em; }
+.screen .plant span { color: #7A8277; }
+.screen .row { display: flex; justify-content: space-between; align-items: center; background: #fff; border-radius: 14px; padding: 12px 14px; }
+.screen .row small { display: block; color: #7A8277; font-size: .7rem; }
+.sw { width: 40px; height: 24px; flex: none; border: 0; border-radius: 99px; background: #D3D8D0; position: relative; cursor: pointer; transition: background .2s; }
+.sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
+.sw[aria-checked="true"] { background: #34C724; }
 .sw[aria-checked="true"]::after { transform: translateX(16px); }
-.visit { margin: 0 14px 16px; padding: 12px 14px; border-radius: 16px; background: #26332A; color: #fff; }
-.visit small { display: inline-block; background: #5BE33A; color: #0B1A06; font-weight: 600; border-radius: 999px; padding: 1px 8px; font-size: 0.66rem; margin-right: 6px; }
 
-/* ---------- subscription ---------- */
-.sub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.razor { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr auto 1fr; align-items: center; gap: 18px; padding: 24px 28px; }
-.razor .arrow { color: var(--sprout); font-family: var(--f-data); }
-.razor h3 { font-size: 1.1rem; }
-.razor p { color: var(--mute); font-size: 0.95rem; }
-.box-list { display: grid; gap: 12px; margin: 6px 0 0; padding: 0; list-style: none; }
-.box-list li { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--line); }
-.box-list li:last-child { border-bottom: 0; padding-bottom: 0; }
-.box-list span:last-child { color: var(--mute); font-size: 0.92rem; text-align: right; }
-.cycle { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--night); border: 1px solid var(--line); justify-self: start; }
-.cycle button { font: 500 0.88rem var(--f-body); color: var(--mute); background: transparent; border: 0; padding: 7px 14px; border-radius: 999px; cursor: pointer; }
-.cycle button[aria-pressed="true"] { background: var(--cream); color: var(--night); }
-.cal { display: grid; grid-template-columns: repeat(12, 1fr); gap: 6px; }
-.cal div { display: grid; justify-items: center; gap: 6px; font-family: var(--f-data); font-size: 0.7rem; color: var(--mute); }
-.cal i { width: 100%; aspect-ratio: 1; max-width: 26px; border-radius: 8px; border: 1px solid var(--line); }
-.cal i.on { background: var(--sprout); border-color: var(--sprout); box-shadow: 0 0 12px color-mix(in srgb, var(--sprout) 50%, transparent); }
-.price { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
-.price td { padding: 10px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
-.price tr:last-child td { border-bottom: 0; }
-.price td:last-child { text-align: right; font-family: var(--f-data); font-variant-numeric: tabular-nums; white-space: nowrap; padding-left: 12px; }
-.price .free { color: var(--sprout); }
-.fine { font-size: 0.8rem; color: var(--mute); }
+/* modules */
+.mod { text-align: center; }
+.mod p.dim { margin-top: 20px; font-size: 1.125rem; }
+.seg { display: inline-flex; margin-top: 40px; padding: 4px; border-radius: 99px; box-shadow: inset 0 0 0 1px var(--hair); }
+.seg button { font: 500 .875rem var(--f); color: var(--dim); background: none; border: 0; padding: 8px 20px; border-radius: 99px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.stack { margin: 56px auto 0; width: min(100%, 440px); display: flex; flex-direction: column-reverse; gap: 10px; }
+.tier { height: 92px; border-radius: 10px; box-shadow: inset 0 0 0 1.5px #3A4038; position: relative; overflow: hidden; transition: opacity .4s, transform .4s; }
+.tier::before { content: ""; position: absolute; top: 10px; left: 14%; right: 14%; height: 3px; border-radius: 3px; background: var(--green); box-shadow: 0 0 18px 2px color-mix(in srgb, var(--green) 70%, transparent); }
+.tier::after { content: ""; position: absolute; inset: 13px 14% auto; height: 70px; background: linear-gradient(color-mix(in srgb, var(--green) 14%, transparent), transparent); }
+.tier.off { opacity: 0; transform: translateY(12px); }
+.spec { display: flex; justify-content: center; gap: clamp(28px, 6vw, 72px); margin-top: 48px; flex-wrap: wrap; }
+.spec b { display: block; font-size: 1.5rem; font-weight: 500; letter-spacing: -0.03em; }
+.spec span { font-size: .8125rem; color: var(--dim); }
 
-/* ---------- value ---------- */
-.value .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.value .sec-head { grid-column: 1 / -1; }
-.quote { padding: 32px; border-radius: var(--radius); background: var(--soil); border: 1px solid var(--line); display: grid; gap: 14px; align-content: start; }
-.quote .tag { font-family: var(--f-data); font-size: 0.75rem; letter-spacing: 0.1em; color: var(--sprout); }
-.quote h3 { font-size: 1.6rem; }
-.quote p { color: var(--mute); }
+/* subscribe */
+.sub .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+.sub p.dim { margin-top: 20px; font-size: 1.125rem; }
+.items { display: grid; border-top: 1px solid var(--hair); }
+.items div { display: flex; justify-content: space-between; padding-block: 20px; border-bottom: 1px solid var(--hair); font-size: 1.125rem; }
+.items span { color: var(--dim); font-size: .9375rem; }
 
-/* ---------- roadmap ---------- */
-.steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; list-style: none; padding: 0; margin: 0; counter-reset: s; }
-.steps li { counter-increment: s; padding: 0 20px 0 0; display: grid; gap: 10px; align-content: start; position: relative; }
-.steps li::before {
-  content: counter(s, decimal-leading-zero); font-family: var(--f-data); font-size: 0.85rem; color: var(--sprout);
-  display: block; padding-bottom: 14px; border-bottom: 2px dashed color-mix(in srgb, var(--cream) 30%, transparent);
-}
-.steps li.now::before { border-bottom-color: var(--sprout); border-bottom-style: solid; }
-.steps p { color: var(--mute); font-size: 0.95rem; }
+/* mission */
+.mission { text-align: center; }
+.mission h2 { font-size: clamp(2.25rem, 6.4vw, 4.75rem); font-weight: 900; }
 
-/* ---------- CTA ---------- */
-.cta { text-align: left; }
-.cta .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 6vw, 72px); align-items: start; }
-.cta h2 { font-size: clamp(2rem, 5vw, 3.2rem); }
-.cta .copy { display: grid; gap: 20px; }
-form { background: var(--soil); border: 1px solid var(--line); border-radius: var(--radius); padding: 28px; display: grid; gap: 16px; }
-label { display: grid; gap: 6px; font-size: 0.9rem; color: var(--mute); }
-input, select {
-  font: 400 1rem var(--f-body); color: var(--cream); background: var(--night);
-  border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; width: 100%;
-}
-input:focus, select:focus { outline: none; border-color: var(--sprout); }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chips label { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; color: var(--cream); }
-.chips input { width: auto; accent-color: var(--sprout); }
-.done { padding: 14px 16px; border-radius: 12px; background: color-mix(in srgb, var(--sprout) 12%, transparent); border: 1px solid color-mix(in srgb, var(--sprout) 40%, transparent); font-size: 0.92rem; }
+/* join */
+.join { text-align: center; padding-top: 0; }
+.join p.dim { margin-top: 16px; }
+form { margin: 40px auto 0; display: flex; gap: 8px; max-width: 460px; }
+input { flex: 1; min-width: 0; height: 52px; padding-inline: 20px; border-radius: 99px; border: 0; background: #121411; box-shadow: inset 0 0 0 1px #2A2E28; color: var(--fg); font: 400 1rem var(--f); }
+input::placeholder { color: #5E635B; }
+input:focus { outline: none; box-shadow: inset 0 0 0 1px var(--green); }
+form .btn { height: 52px; }
+.msg { margin-top: 16px; font-size: .875rem; color: var(--dim); min-height: 1.4em; }
 
-footer { border-top: 1px solid var(--line); padding-block: 48px; color: var(--mute); font-size: var(--s-small); }
-footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; align-items: center; }
-footer .brand img { height: 28px; }
+footer { border-top: 1px solid var(--hair); padding-block: 32px; font-size: .8125rem; color: var(--dim); }
+footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 
-@media (max-width: 900px) {
-  .nav-links { display: none; }
+@media (max-width: 860px) {
+  .links { display: none; }
   .nav .btn { margin-left: auto; }
-  .hero .wrap, .problem .wrap, .build .wrap, .app .wrap, .cta .wrap, .value .wrap, .sub-grid { grid-template-columns: 1fr; }
-  .hero-logo { order: -1; width: min(70%, 300px); }
-  .three { grid-template-columns: 1fr; }
-  .steps { grid-template-columns: 1fr 1fr; gap: 32px 0; }
-  .razor { grid-template-columns: 1fr; gap: 8px; }
-  .razor .arrow { transform: rotate(90deg); justify-self: start; }
+  .price .wrap, .app .wrap, .sub .wrap { grid-template-columns: 1fr; }
+  .three { grid-template-columns: 1fr; gap: 0; }
+  .three div { padding-block: 24px; }
 }
-@media (max-width: 480px) {
-  .specs { grid-template-columns: 1fr; }
-  .specs div { border-right: 0; border-bottom: 1px solid var(--line); }
-  .specs div:last-child { border-bottom: 0; }
-  .steps { grid-template-columns: 1fr; }
-  .card, .quote, form { padding: 22px; }
+@media (max-width: 460px) {
+  form { flex-direction: column; }
 }
 @media (prefers-reduced-motion: no-preference) {
-  .hero-logo img { animation: breathe 5s ease-in-out infinite; }
-  @keyframes breathe { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  .hero h1, .hero p, .hero .cta, .hero-art { animation: up .9s cubic-bezier(.2,.7,.2,1) both; }
+  .hero p { animation-delay: .08s; }
+  .hero .cta { animation-delay: .16s; }
+  .hero-art { animation-delay: .24s; }
+  @keyframes up { from { transform: translateY(16px); } to { transform: none; } }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .tier, .sw::after { transition: none; }
+  .tier, .sw, .sw::after { transition: none; }
 }
 </style>
 </head>
@@ -303,18 +163,14 @@ footer .brand img { height: 28px; }
 
 <header class="nav">
   <div class="wrap">
-    <a class="brand" href="#top" aria-label="Pocket Farm 홈">
-      <img src="mark.webp" alt="" width="26" height="34">
-      <span class="wordmark">Pocket <span class="g">Farm</span></span>
-    </a>
-    <nav class="nav-links" aria-label="주요 메뉴">
-      <a href="#why">왜 포켓팜</a>
-      <a href="#build">본체</a>
+    <a class="brand" href="#top"><img src="mark.webp" alt="" width="20" height="26">Pocket <span class="g">Farm</span></a>
+    <nav class="links" aria-label="메뉴">
+      <a href="#price">가격</a>
       <a href="#app">앱</a>
+      <a href="#module">모듈</a>
       <a href="#subscribe">구독</a>
-      <a href="#value">가치</a>
     </nav>
-    <a class="btn btn-glow" href="#join">시범 사용자 신청</a>
+    <a class="btn btn-g" href="#join">출시 알림</a>
   </div>
 </header>
 
@@ -322,322 +178,118 @@ footer .brand img { height: 28px; }
 
 <section class="hero">
   <div class="wrap">
-    <div class="copy">
-      <span class="eyebrow">초저가 가정용 스마트팜</span>
-      <h1>작은 공간에서도,<br><span class="g">생명은 자랍니다.</span></h1>
-      <p class="lead">가격 거품 80%를 걷어낸 진짜 가정용 스마트팜. 조명·급수·온습도는 스마트폰으로, 씨앗은 정기 배송으로. 원룸 책상 위에도, 아이 방 창가에도 부담 없이 한 대.</p>
-      <div class="hero-cta">
-        <a class="btn btn-glow" href="#join">시범 사용자 신청하기</a>
-        <a class="btn btn-line" href="#why">왜 이렇게 저렴한가요?</a>
-      </div>
-      <div class="stitch" aria-label="포켓팜 핵심 숫자">
-        <span><b>−80%</b>가격 거품 제거</span>
-        <span><b>0개</b>본체 LCD 화면</span>
-        <span><b>1,000원</b>1대당 플라스틱 원가 수준</span>
-      </div>
+    <h1>식탁 위의<br>작은 농장.</h1>
+    <p>거품을 뺀 가정용 스마트팜.</p>
+    <div class="cta">
+      <a class="btn btn-g" href="#join">출시 알림 받기</a>
+      <a class="btn btn-o" href="#price">더 알아보기</a>
     </div>
-    <div class="hero-logo">
-      <img src="logo.webp" alt="Pocket Farm 로고. 주머니에서 초록 새싹이 돋아난 모양" width="420" height="420">
-    </div>
+    <div class="hero-art"><img src="logo.webp" alt="Pocket Farm" width="520" height="520"></div>
   </div>
 </section>
 
-<section class="problem" id="why">
+<section class="price" id="price">
   <div class="wrap">
     <div>
-      <div class="sec-head">
-        <span class="eyebrow">문제</span>
-        <h2>가정용 스마트팜은<br>왜 모두 실패했을까?</h2>
-        <p class="lead">채소값이 금값이라 집에서 길러 먹으려고 검색해 봅니다. 그런데 가격표를 보는 순간 장바구니에서 빼게 됩니다.</p>
-      </div>
-      <div class="pain">
-        <div>
-          <h3>기계가 비쌉니다</h3>
-          <p>시중 재배기는 12만 원대, 비싼 건 20만 원을 훌쩍 넘습니다. 본전을 뽑으려다 배보다 배꼽이 커집니다.</p>
-        </div>
-        <div>
-          <h3>씨앗은 더 비쌉니다</h3>
-          <p>전용 씨앗 키트는 3개에 11,000원이 넘습니다. 마트에서 몇천 원이면 사는 씨앗인데도요.</p>
-        </div>
-        <div>
-          <h3>결국 사 먹는 게 낫습니다</h3>
-          <p>기계도 비싸고 씨앗도 비싼 구조가 스마트팜의 대중화를 막고 있습니다.</p>
-        </div>
-      </div>
+      <div class="big">−80%</div>
+      <h2>필요 없는 건<br>전부 뺐습니다.</h2>
     </div>
-    <div class="receipt" role="img" aria-label="기존 스마트팜 구매 영수증 예시: 본체 127,000원, 전용 씨앗 키트 3개 11,000원 이상">
-      <h3>기존 스마트팜 구매 영수증</h3>
-      <p class="meta">시중 가정용 재배기 기준 · 예시</p>
-      <div class="row"><span>스마트팜 재배기 (LCD 탑재)</span><span>127,000</span></div>
-      <div class="row"><span>전용 씨앗 키트 × 3</span><span>11,000+</span></div>
-      <div class="row"><span>추가 키트 (다음 수확)</span><span>11,000+</span></div>
-      <hr>
-      <div class="row total"><span>합계</span><span>149,000+</span></div>
-      <div class="stamp">장바구니에서 삭제됨</div>
+    <div class="ledger">
+      <div><span>재배기 본체</span><s>127,000원</s></div>
+      <div><span>전용 씨앗 3개</span><s>11,000원</s></div>
+      <div><span>본체 전면 LCD</span><s>있음</s></div>
+      <div class="us"><span>포켓팜</span><span class="g">필요한 것만</span></div>
     </div>
   </div>
-</section>
-
-<section class="solution">
   <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow">포켓팜은 다릅니다</span>
-      <h2>좋은 스마트팜,<br>이제 더 합리적인 가격으로</h2>
-      <p class="lead">비싼 가격, 복잡한 관리, 비싼 씨앗 대신 누구나 집에 한 대씩 들일 수 있도록. 초저가가 가능한 이유는 세 가지입니다.</p>
-    </div>
     <div class="three">
-      <article class="card">
-        <div class="ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V11"/><path d="M12 11C12 7 9 4 4 4c0 5 3 7 8 7Z"/><path d="M12 13c0-4 3-6 8-6 0 5-3 6-8 6Z"/></svg></div>
-        <h3>꼭 필요한 기능만</h3>
-        <p>식물이 자라는 데 필요한 조명, 급수, 환기만 남겼습니다. 쓰지 않는 기능에 돈을 내지 않습니다.</p>
-      </article>
-      <article class="card">
-        <div class="ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
-        <h3>제어는 스마트폰 앱으로</h3>
-        <p>원가를 가장 많이 잡아먹는 전면 LCD 액정을 없앴습니다. 매일 손에 쥔 스마트폰이 곧 리모컨입니다.</p>
-      </article>
-      <article class="card">
-        <div class="ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4Z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg></div>
-        <h3>씨앗은 직접 공급</h3>
-        <p>중간 유통 없이 포켓팜 전용 씨앗 캡슐을 저렴하게 바로 보내 드립니다.</p>
-      </article>
-    </div>
-    <div class="cut">
-      <span class="big">80%</span>
-      <p>기존 가정용 스마트팜 가격에 끼어 있던 거품을 걷어냈습니다.</p>
-    </div>
-  </div>
-</section>
-
-<section class="build" id="build">
-  <div class="wrap">
-    <div class="copy">
-      <div class="sec-head" style="margin-bottom:0">
-        <span class="eyebrow">본체 · 소재</span>
-        <h2>레고처럼 튼튼하게,<br>이케아처럼 조립합니다</h2>
-        <p class="lead">레고 블록과 자동차 범퍼에 쓰이는 고강도 ABS 수지를 썼습니다. 통짜 완제품이 아니라 평면 모듈로 금형을 파서 대량 생산합니다.</p>
-      </div>
-      <div class="specs">
-        <div><b>ABS</b><span>고강도 수지</span></div>
-        <div><b>400g</b><span>1대당 플라스틱</span></div>
-        <div><b>~1,000원</b><span>소재·가공 원가</span></div>
-      </div>
-      <ul class="ticks">
-        <li>조립 방법에 따라 나만의 포켓팜을 만들고 2단, 3단으로 늘려 재배합니다.</li>
-        <li>고장이나 파손이 나면 그 모듈만 바꾸면 됩니다.</li>
-        <li>평평하게 포장되어 배송비와 보관 공간도 줄어듭니다.</li>
-      </ul>
-    </div>
-    <div class="stage">
-      <div class="tiers" role="group" aria-label="단 수 선택">
-        <button type="button" id="tier-1" aria-pressed="false" data-tiers="1">1단</button>
-        <button type="button" id="tier-2" aria-pressed="false" data-tiers="2">2단</button>
-        <button type="button" id="tier-3" aria-pressed="true" data-tiers="3">3단</button>
-      </div>
-      <div class="rack">
-        <svg viewBox="0 0 320 340" role="img" aria-labelledby="rack-title">
-          <title id="rack-title">모듈을 쌓아 만든 포켓팜 본체 그림</title>
-          <defs>
-            <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#B4F24C"/><stop offset="1" stop-color="#3CC925"/>
-            </linearGradient>
-            <linearGradient id="lamp" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#E9D6FF" stop-opacity=".55"/><stop offset="1" stop-color="#E9D6FF" stop-opacity="0"/>
-            </linearGradient>
-            <g id="sprout">
-              <path d="M0 0 C -2 -10 -14 -16 -22 -14 C -20 -4 -10 2 0 0 Z" fill="url(#leaf)"/>
-              <path d="M0 0 C 2 -14 14 -24 26 -22 C 24 -8 12 0 0 0 Z" fill="url(#leaf)"/>
-              <path d="M0 0 V 10" stroke="#3CC925" stroke-width="2.5"/>
-            </g>
-            <g id="module">
-              <rect x="0" y="0" width="260" height="14" rx="5" fill="#F2EFE3"/>
-              <rect x="10" y="14" width="240" height="60" fill="url(#lamp)"/>
-              <rect x="0" y="74" width="260" height="22" rx="6" fill="#1A1F19" stroke="#F2EFE3" stroke-width="2"/>
-              <path d="M18 85 H 242" stroke="#F2EFE3" stroke-width="1.5" stroke-dasharray="6 7" opacity=".55"/>
-              <rect x="0" y="0" width="8" height="96" rx="3" fill="#F2EFE3"/>
-              <rect x="252" y="0" width="8" height="96" rx="3" fill="#F2EFE3"/>
-              <use href="#sprout" x="55" y="66"/>
-              <use href="#sprout" x="130" y="64"/>
-              <use href="#sprout" x="205" y="66"/>
-            </g>
-          </defs>
-          <g class="tier" data-tier="3"><use href="#module" x="30" y="10"/></g>
-          <g class="tier" data-tier="2"><use href="#module" x="30" y="114"/></g>
-          <g class="tier" data-tier="1"><use href="#module" x="30" y="218"/></g>
-          <rect x="22" y="318" width="276" height="10" rx="5" fill="#2A3128"/>
-          <circle cx="160" cy="323" r="3" fill="#5BE33A"/>
-        </svg>
-      </div>
-      <p class="note" id="tier-note">3단 · 모종 9구 · 같은 모듈 3세트</p>
+      <div><b>화면 대신 앱</b><span class="dim">LCD를 없애고 스마트폰으로 제어합니다.</span></div>
+      <div><b>조립식 ABS 모듈</b><span class="dim">레고와 같은 소재. 1대 원가 약 1,000원.</span></div>
+      <div><b>씨앗 직배송</b><span class="dim">전용 캡슐을 중간 유통 없이.</span></div>
     </div>
   </div>
 </section>
 
 <section class="app" id="app">
   <div class="wrap">
-    <div class="copy">
-      <div class="sec-head" style="margin-bottom:0">
-        <span class="eyebrow">포켓팜 앱</span>
-        <h2>앱 하나로,<br>더 스마트하고 더 간편하게</h2>
-        <p class="lead">기기 화면 대신 스마트폰 앱이 모든 걸 맡습니다. 집 밖에서도 우리 집 바질의 상태를 확인하세요.</p>
-      </div>
-      <div class="feat">
-        <div>
-          <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span>
-          <span><h3>조명 · 급수 · 환기 원격 제어</h3><p>켜고 끄고 예약하는 일을 앱에서 합니다.</p></span>
-        </div>
-        <div>
-          <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 14.8V4a2 2 0 1 0-4 0v10.8a4 4 0 1 0 4 0Z"/></svg></span>
-          <span><h3>온도 · 습도 · 조도 실시간 확인</h3><p>센서 값과 함께 “적정”인지 바로 알려 줍니다.</p></span>
-        </div>
-        <div>
-          <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="15" rx="3"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 5l1.5-2h5L16 5"/></svg></span>
-          <span><h3>성장 앨범</h3><p>심은 날부터 수확까지 DAY별 사진과 메모로 남깁니다.</p></span>
-        </div>
-        <div>
-          <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4M9 15l2 2 4-4"/></svg></span>
-          <span><h3>포켓팜 케어 예약</h3><p>청소·정비, 모종 교체, 점검·수리를 앱에서 신청합니다.</p></span>
-        </div>
+    <div>
+      <h2>리모컨은<br>이미 손에 있습니다.</h2>
+      <p class="dim">조명, 급수, 환기를 앱 하나로.</p>
+      <div class="readout">
+        <div><b>23.8°</b><span>온도</span></div>
+        <div><b>72%</b><span>습도</span></div>
+        <div><b>8,420</b><span>조도 lx</span></div>
       </div>
     </div>
-
-    <div class="phone" aria-label="포켓팜 앱 홈 화면 예시">
+    <div class="phone" aria-label="포켓팜 앱 화면 예시">
       <div class="screen">
-        <div class="bar"><b>Pocket <i>Farm</i></b><span aria-hidden="true">🔔</span></div>
+        <div class="top"><span>Pocket <i>Farm</i></span><span aria-hidden="true">•••</span></div>
         <div class="plant">
-          <div class="pot" aria-hidden="true">
-            <svg width="52" height="52" viewBox="-30 -30 60 60"><use href="#sprout" x="0" y="10"/></svg>
-          </div>
-          <span class="ok">● 건강해요</span>
-          <h4>오늘도 잘 자라고 있어요</h4>
-          <span class="sub">바질 · DAY 23</span>
+          <img src="mark.webp" alt="" width="64" height="85" style="background:#050605;padding:8px 10px">
+          <b>바질 · DAY 23</b>
+          <span>잘 자라고 있어요</span>
         </div>
-        <div class="sensors">
-          <div><b>23.8°C</b><span>온도 · 적정</span></div>
-          <div><b>72%</b><span>습도 · 적정</span></div>
-          <div><b>8,420 lx</b><span>조도 · 적정</span></div>
-        </div>
-        <div class="controls">
-          <div class="ctl"><span>조명<small id="lamp-state">켜짐 · 06:00–22:00</small></span><button type="button" class="sw" id="sw-lamp" role="switch" aria-checked="true" aria-label="조명"></button></div>
-          <div class="ctl"><span>급수<small id="pump-state">대기 · 다음 급수 14:00</small></span><button type="button" class="sw" id="sw-pump" role="switch" aria-checked="false" aria-label="급수"></button></div>
-        </div>
-        <div class="visit"><small>D-5</small>다음 관리 방문 · 10월 15일 예정</div>
+        <div class="row"><span>조명<small id="lamp-s">06:00 – 22:00</small></span><button type="button" class="sw" id="sw-lamp" role="switch" aria-checked="true" aria-label="조명"></button></div>
+        <div class="row"><span>급수<small id="pump-s">다음 14:00</small></span><button type="button" class="sw" id="sw-pump" role="switch" aria-checked="false" aria-label="급수"></button></div>
+        <div class="row"><span>환기<small id="fan-s">자동</small></span><button type="button" class="sw" id="sw-fan" role="switch" aria-checked="true" aria-label="환기"></button></div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="subscribe" id="subscribe">
+<section class="mod" id="module">
   <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow">구독</span>
-      <h2>구독으로 더 건강한 일상</h2>
-      <p class="lead">본체는 합리적으로, 씨앗과 영양제는 정기 배송으로. 한 번 들이면 수확이 끊기지 않습니다.</p>
+    <h2>쌓는 만큼 넓어집니다.</h2>
+    <p class="dim">평면 모듈을 조립해 1단부터 3단까지. 고장 나면 그 칸만 교체.</p>
+    <div class="seg" role="group" aria-label="단 수">
+      <button type="button" id="t1" data-n="1" aria-pressed="false">1단</button>
+      <button type="button" id="t2" data-n="2" aria-pressed="false">2단</button>
+      <button type="button" id="t3" data-n="3" aria-pressed="true">3단</button>
     </div>
-    <div class="sub-grid">
-      <div class="card razor">
-        <h3>본체</h3>
-        <p>마진을 최소화한 가격으로 더 많은 가정에</p>
-        <span class="arrow" aria-hidden="true">→</span>
-        <p><b style="color:var(--cream)">정기 배송</b>으로 계속 키우고 계속 먹습니다</p>
-      </div>
-      <article class="card">
-        <h3>정기 배송 박스</h3>
-        <ul class="box-list">
-          <li><span>흙 없이 꽂아 쓰는 씨앗 캡슐</span><span>전용 규격</span></li>
-          <li><span>식물 영양제</span><span>주기별 보충</span></li>
-          <li><span>제철 신선식품</span><span>함께 배송</span></li>
-        </ul>
-        <div class="cycle" role="group" aria-label="배송 주기">
-          <button type="button" id="cycle-1" aria-pressed="true" data-every="1">매월</button>
-          <button type="button" id="cycle-2" aria-pressed="false" data-every="2">격월</button>
-        </div>
-        <div class="cal" id="cal" aria-label="1년 배송 일정"></div>
-        <p class="fine" id="cal-note">1년에 12번 배송</p>
-      </article>
-      <article class="card">
-        <h3>포켓팜 케어</h3>
-        <table class="price">
-          <tbody>
-            <tr><td>청소·정비 &amp; 센서 점검</td><td class="free">기본 포함</td></tr>
-            <tr><td>모종 교체</td><td>+15,000원</td></tr>
-            <tr><td>비료 보충</td><td>+8,000원</td></tr>
-            <tr><td>정기 방문과 함께 신청 시 출장비</td><td class="free">0원</td></tr>
-            <tr><td>별도 방문 요청 시 출장비</td><td>15,000원</td></tr>
-          </tbody>
-        </table>
-        <p class="fine">앱 ‘케어’ 탭에서 서비스와 방문 방식을 고르면 결제 금액을 바로 확인할 수 있습니다.</p>
-      </article>
+    <div class="stack" aria-hidden="true">
+      <div class="tier" data-t="1"></div>
+      <div class="tier" data-t="2"></div>
+      <div class="tier" data-t="3"></div>
+    </div>
+    <div class="spec">
+      <div><b>ABS</b><span>고강도 수지</span></div>
+      <div><b>400g</b><span>플라스틱 / 대</span></div>
+      <div><b>~1,000원</b><span>소재·가공 원가</span></div>
     </div>
   </div>
 </section>
 
-<section class="value" id="value">
+<section class="sub" id="subscribe">
   <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow">사회적 가치</span>
-      <h2>작은 기계 하나가 바꾸는 식탁</h2>
+    <div>
+      <h2>씨앗은<br>알아서 옵니다.</h2>
+      <p class="dim">매월 또는 격월 정기 배송.</p>
     </div>
-    <article class="quote">
-      <span class="tag">FOOD DESERT</span>
-      <h3>식품 사막을 줄입니다</h3>
-      <p>신선한 채소를 구하기 어려운 동네에서도, 집 안에서 매일 잎채소를 수확할 수 있습니다.</p>
-    </article>
-    <article class="quote">
-      <span class="tag">KIDS</span>
-      <h3>편식하던 아이가 상추를 먹습니다</h3>
-      <p>자기 방에서 직접 기른 채소는 다릅니다. 키우는 재미가 먹는 습관으로 이어집니다.</p>
-    </article>
+    <div class="items">
+      <div>씨앗 캡슐<span>흙 없이 꽂기만</span></div>
+      <div>영양제<span>주기별 보충</span></div>
+      <div>신선식품<span>함께 배송</span></div>
+      <div>포켓팜 케어<span>청소·점검 기본 포함</span></div>
+    </div>
   </div>
 </section>
 
-<section class="roadmap">
+<section class="mission">
   <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow">지금 하고 있는 일</span>
-      <h2>최소기능제품(MVP)을 만듭니다</h2>
-      <p class="lead">청사진을 시장에서 빠르게 증명하는 순서입니다.</p>
-    </div>
-    <ol class="steps">
-      <li class="now"><h3>통합 PCB 보드</h3><p>조명, 급수, 환기를 하나의 보드로 제어합니다.</p></li>
-      <li><h3>모듈 금형 제작</h3><p>ABS 평면 모듈 금형으로 양산 원가를 확정합니다.</p></li>
-      <li><h3>시범 사용자 유치</h3><p>원룸과 아파트, 아이가 있는 가정에서 먼저 써 봅니다.</p></li>
-      <li><h3>MVP 테스트 완료</h3><p>재배 성공률과 구독 재구매를 확인합니다.</p></li>
-    </ol>
+    <h2>모든 가정의 식탁에<br><span class="g">가장 가까운 자연</span>을.</h2>
   </div>
 </section>
 
-<section class="cta" id="join">
+<section class="join" id="join">
   <div class="wrap">
-    <div class="copy">
-      <span class="eyebrow">시범 사용자 모집</span>
-      <h2>작은 씨앗이 만드는<br><span class="g">큰 변화</span>에 함께해 주세요</h2>
-      <p class="lead">가장 합리적인 가격으로, 가장 건강한 식재료를 대한민국 모든 가정의 식탁 위에 올리겠습니다.</p>
-    </div>
+    <h2>가장 먼저 받아보세요.</h2>
+    <p class="dim">시범 사용자 모집이 열리면 알려드립니다.</p>
     <form id="join-form" novalidate>
-      <label for="f-name">이름
-        <input id="f-name" name="name" autocomplete="name" placeholder="홍길동" required>
-      </label>
-      <label for="f-contact">연락처 (휴대폰 또는 이메일)
-        <input id="f-contact" name="contact" autocomplete="email" placeholder="010-0000-0000" required>
-      </label>
-      <fieldset style="border:0;padding:0;margin:0;display:grid;gap:8px">
-        <legend style="font-size:.9rem;color:var(--mute);padding:0;margin-bottom:8px">사는 곳</legend>
-        <div class="chips">
-          <label><input type="radio" name="home" id="h-1" value="원룸·오피스텔" checked>원룸·오피스텔</label>
-          <label><input type="radio" name="home" id="h-2" value="아파트">아파트</label>
-          <label><input type="radio" name="home" id="h-3" value="주택">주택</label>
-        </div>
-      </fieldset>
-      <label for="f-plant">가장 먼저 키우고 싶은 작물
-        <select id="f-plant" name="plant">
-          <option>상추</option><option>바질</option><option>깻잎</option><option>방울토마토</option><option>허브 모음</option>
-        </select>
-      </label>
-      <button class="btn btn-glow" type="submit">시범 사용자 신청</button>
-      <p class="done" id="join-done" hidden></p>
-      <p class="fine">이 페이지는 공개 전 미리보기입니다. 입력한 정보는 어디에도 전송되거나 저장되지 않습니다.</p>
+      <label for="f-contact" class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">휴대폰 번호 또는 이메일</label>
+      <input id="f-contact" name="contact" placeholder="휴대폰 번호 또는 이메일" autocomplete="email">
+      <button class="btn btn-g" type="submit">알림 신청</button>
     </form>
+    <p class="msg" id="msg" aria-live="polite">미리보기 페이지라 입력 내용은 전송되지 않습니다.</p>
   </div>
 </section>
 
@@ -645,70 +297,36 @@ footer .brand img { height: 28px; }
 
 <footer>
   <div class="wrap">
-    <a class="brand" href="#top"><img src="mark.webp" alt="" width="21" height="28"><span class="wordmark">Pocket <span class="g">Farm</span></span></a>
-    <span>포켓팜 · 대표 정찬희 · 우리 가족 식탁의 가장 가까운 자연</span>
+    <span>© Pocket Farm</span>
+    <span>대표 정찬희</span>
   </div>
 </footer>
 
 <script>
 (function () {
-  // 단 수 선택
-  var notes = { 1: "1단 · 모종 3구 · 책상 위에 딱 맞게", 2: "2단 · 모종 6구 · 같은 모듈 2세트", 3: "3단 · 모종 9구 · 같은 모듈 3세트" };
-  var tierBtns = document.querySelectorAll(".tiers button");
-  tierBtns.forEach(function (b) {
+  var segs = document.querySelectorAll(".seg button");
+  segs.forEach(function (b) {
     b.addEventListener("click", function () {
-      var n = +b.dataset.tiers;
-      tierBtns.forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
-      document.querySelectorAll(".tier").forEach(function (t) { t.classList.toggle("off", +t.dataset.tier > n); });
-      document.getElementById("tier-note").textContent = notes[n];
+      var n = +b.dataset.n;
+      segs.forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      document.querySelectorAll(".tier").forEach(function (t) { t.classList.toggle("off", +t.dataset.t > n); });
     });
   });
 
-  // 앱 스위치
-  function bindSwitch(id, stateId, on, off) {
-    var sw = document.getElementById(id), st = document.getElementById(stateId);
+  [["sw-lamp", "lamp-s", "06:00 – 22:00", "꺼짐"], ["sw-pump", "pump-s", "급수 중", "다음 14:00"], ["sw-fan", "fan-s", "자동", "꺼짐"]].forEach(function (c) {
+    var sw = document.getElementById(c[0]), s = document.getElementById(c[1]);
     sw.addEventListener("click", function () {
-      var v = sw.getAttribute("aria-checked") !== "true";
-      sw.setAttribute("aria-checked", String(v));
-      st.textContent = v ? on : off;
-    });
-  }
-  bindSwitch("sw-lamp", "lamp-state", "켜짐 · 06:00–22:00", "꺼짐 · 내일 06:00 켜짐");
-  bindSwitch("sw-pump", "pump-state", "급수 중 · 30초 후 자동 정지", "대기 · 다음 급수 14:00");
-
-  // 배송 달력
-  var cal = document.getElementById("cal");
-  function drawCal(every) {
-    cal.innerHTML = "";
-    for (var m = 1; m <= 12; m++) {
-      var d = document.createElement("div");
-      var on = (m - 1) % every === 0;
-      d.innerHTML = '<i class="' + (on ? "on" : "") + '"></i>' + m;
-      cal.appendChild(d);
-    }
-    document.getElementById("cal-note").textContent = "1년에 " + (12 / every) + "번 배송";
-  }
-  var cycleBtns = document.querySelectorAll(".cycle button");
-  cycleBtns.forEach(function (b) {
-    b.addEventListener("click", function () {
-      cycleBtns.forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
-      drawCal(+b.dataset.every);
+      var on = sw.getAttribute("aria-checked") !== "true";
+      sw.setAttribute("aria-checked", String(on));
+      s.textContent = on ? c[2] : c[3];
     });
   });
-  drawCal(1);
 
-  // 신청 폼 (전송 없음)
-  var form = document.getElementById("join-form"), done = document.getElementById("join-done");
+  var form = document.getElementById("join-form"), msg = document.getElementById("msg");
   form.addEventListener("submit", function (e) {
     e.preventDefault();
-    var f = form.elements, name = f.name.value.trim(), contact = f.contact.value.trim();
-    done.hidden = false;
-    if (!name || !contact) {
-      done.textContent = "이름과 연락처를 모두 입력해 주세요.";
-      (name ? f.contact : f.name).focus();
-      return;
-    }
-    done.textContent = name + "님, " + f.home.value + "에서 " + f.plant.value + "부터 키우실 준비가 되었네요. 정식 모집이 열리면 이 정보로 신청을 완료할 수 있습니다.";
+    var v = form.elements.contact.value.trim();
+    msg.textContent = v ? "확인했습니다. 미리보기 페이지라 실제로 전송되지는 않았습니다." : "휴대폰 번호나 이메일을 입력해 주세요.";
   });
 })();
 </script>
